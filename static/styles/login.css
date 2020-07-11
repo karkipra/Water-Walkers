@@ -88,3 +88,7 @@ color: white;
 .links a{
 margin-left: 4px;
 }
+
+.navbar-collapse.collapse.in {
+    display: block!important;
+  }
