@@ -14,14 +14,15 @@
 		<input class="form-control" name="descrip" placeholder="Event Description" type="text">
     </div>
     <div class="form-group">
-		<input class="form-control" name="start" placeholder="Event Start" type="text">
+		<input class="form-control" name="start" type="datetime-local" >
     </div>
     <div class="form-group">
-		<input class="form-control" name="end" placeholder="Event End" type="text">
+		<input class="form-control" name="end" type="datetime-local" >
     </div>
     <div class="form-group">
 		<input class="form-control" name="url" placeholder="Event URL" type="text">
 	</div>
+
 	<button class="login button" type="submit">Submit</button>
 </form>
 {% endblock %}
