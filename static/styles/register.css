@@ -4,8 +4,9 @@
 
 html,body{
 background-image: url('http://getwallpapers.com/wallpaper/full/a/5/d/544750.jpg');
+background-attachment: fixed;
 background-size: cover;
-background-repeat: no-repeat;
+background-repeat: no-repeat; 
 height: 100%;
 font-family: 'Numans', sans-serif;
 }
@@ -16,10 +17,10 @@ align-content: center;
 }
 
 .card{
-height: 370px;
+height: 1200px;
 margin-top: auto;
 margin-bottom: auto;
-width: 400px;
+width: 600px;
 background-color: rgba(0,0,0,0.5) !important;
 }
 
@@ -86,4 +87,8 @@ color: white;
 
 .links a{
 margin-left: 4px;
+}
+
+.spacing { 
+    height: 15px;
 }
