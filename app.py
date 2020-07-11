@@ -29,7 +29,19 @@ def login():
     else:
         username = request.form.get("username")
         password = request.form.get("password")
-        return "TODO"
+        
+        conn = sqlite3.connect('database/updated_db.db')
+        db = conn.cursor()
+        
+        # look for username and password in database
+        db.execute("SELECT * FROM MAIN WHERE username=? AND password=?", username, password,)
+        data = db.fetchall()
+
+        if len(data) != 1:
+            # TODO - add way for user to see that they've added in the wrong info
+            return redirect("/login")
+        else:
+            return redirect("/")
 
 @app.route('/register', methods=["GET", "POST"])
 def register():
@@ -49,6 +61,11 @@ def register():
         needs = request.form.get("needs")
         meds = request.form.get("medications")
         notes = request.form.get("notes")
+        
+        conn = sqlite3.connect('database/updated_db.db')
+        db = conn.cursor()
+        
+        # insert some more commands
 
         return "TODO"
 
