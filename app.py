@@ -13,7 +13,7 @@ def index():
     user = {'username': 'Pratik'}
 
     # SQLite query to add username and password into database
-    conn = sqlite3.connect('database/updated_db.db')
+    conn = sqlite3.connect('database/reupdated.db')
     db = conn.cursor()
     events = db.execute("SELECT * FROM EVENTS")
     conn.commit()
@@ -30,7 +30,7 @@ def login():
         username = request.form.get("username")
         password = request.form.get("password")
         
-        conn = sqlite3.connect('database/updated_db.db')
+        conn = sqlite3.connect('database/reupdated.db')
         db = conn.cursor()
         
         # look for username and password in database
@@ -50,25 +50,54 @@ def register():
     else:
         # get values from form
         name = request.form.get("name")
+        
+        password = request.form.get("password")
+        confirm = request.form.get("passwordconfirm")
+        
+        # TODO - show users that password doesn't match
+        if password != confirm:
+            return redirect("/register")
+        
         age = request.form.get("age")
         grade = request.form.get("grade")
         dob = request.form.get("dob")
         email = request.form.get("email")
+        
         parent1 = request.form.get("parent1")
+        parent1phone = request.form.get("parent1phone")
         parent2 = request.form.get("parent2")
+        parent2phone = request.form.get("parent2phone")
         emergency = request.form.get("econtact")
+        emergency_phone = request.form.get("econtactphone")
+        
         allergies = request.form.get("allergies")
         needs = request.form.get("needs")
         meds = request.form.get("medications")
         notes = request.form.get("notes")
         
-        conn = sqlite3.connect('database/updated_db.db')
+        # fill tuple with ordered col info
+        # NOTE - students are user type 1
+        main_info = (1, email, password)
+        
+        conn = sqlite3.connect('database/reupdated.db')
         db = conn.cursor()
         
-        # insert some more commands
-
-        return "TODO"
-
+        # main table updated
+        db.execute("INSERT INTO MAIN (user_type, username, password) VALUES (?,?,?)", main_info)
+        conn.commit()
+        
+        # get student's user_id
+        db.execute("SELECT * FROM MAIN WHERE username=?", email)
+        data = db.fetchall()
+        user_id = data[0]
+        
+        # TODO - edit db to have parent phone numbers
+        # TODO - figure out why this statement has a binding error
+        student_info = (str(user_id), name, age, grade, dob, parent1, parent2, emergency, allergies, meds, parent1phone, parent2phone, emergency_phone)
+        db.execute("INSERT INTO STUDENTS (user_id, name, age, grade, dob, parent1, parent2, econtact, diet, meds, parent1phone, parent2phone, emergencyphone) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)", student_info)
+        conn.commit()
+        
+        return redirect("/")
 
 @app.route('/calendar')
 def calendar():
@@ -106,7 +135,7 @@ def add_event():
 
         # IMPORTANT - for now this needs to run locally on someone's machine. 
         # remember to change this per your db's path!
-        conn = sqlite3.connect('database/updated_db.db')
+        conn = sqlite3.connect('database/reupdated.db')
         db = conn.cursor()
 
         # SQLite query to add username and password into database
