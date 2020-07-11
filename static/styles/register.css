@@ -92,3 +92,7 @@ margin-left: 4px;
 .spacing { 
     height: 15px;
 }
+
+.navbar-collapse.collapse.in {
+    display: block!important;
+  }

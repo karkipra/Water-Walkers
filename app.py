@@ -1,6 +1,8 @@
 from flask import Flask, render_template, request, session, redirect
 from flask_bootstrap import Bootstrap
 import sqlite3
+from datetime import datetime 
+import json
 
 # Initializing app
 app = Flask(__name__)
@@ -13,7 +15,7 @@ def index():
     user = {'username': 'Pratik'}
 
     # SQLite query to add username and password into database
-    conn = sqlite3.connect('database/updated_db.db')
+    conn = sqlite3.connect('database/database.db')
     db = conn.cursor()
     events = db.execute("SELECT * FROM EVENTS")
     conn.commit()
@@ -30,7 +32,7 @@ def login():
         username = request.form.get("username")
         password = request.form.get("password")
         
-        conn = sqlite3.connect('database/updated_db.db')
+        conn = sqlite3.connect('database/database.db')
         db = conn.cursor()
         
         # look for username and password in database
@@ -50,29 +52,58 @@ def register():
     else:
         # get values from form
         name = request.form.get("name")
+        
+        password = request.form.get("password")
+        confirm = request.form.get("passwordconfirm")
+        
+        # TODO - show users that password doesn't match
+        if password != confirm:
+            return redirect("/register")
+        
         age = request.form.get("age")
         grade = request.form.get("grade")
         dob = request.form.get("dob")
         email = request.form.get("email")
+        
         parent1 = request.form.get("parent1")
+        parent1phone = request.form.get("parent1phone")
         parent2 = request.form.get("parent2")
+        parent2phone = request.form.get("parent2phone")
         emergency = request.form.get("econtact")
+        emergency_phone = request.form.get("econtactphone")
+        
         allergies = request.form.get("allergies")
         needs = request.form.get("needs")
         meds = request.form.get("medications")
         notes = request.form.get("notes")
         
-        conn = sqlite3.connect('database/updated_db.db')
+        # fill tuple with ordered col info
+        # NOTE - students are user type 1
+        main_info = (1, email, password)
+        
+        conn = sqlite3.connect('database/database.db')
         db = conn.cursor()
         
-        # insert some more commands
-
-        return "TODO"
+        # main table updated
+        db.execute("INSERT INTO MAIN (user_type, username, password) VALUES (?,?,?)", main_info)
+        conn.commit()
+        
+        # get student's user_id
+        db.execute("SELECT * FROM MAIN WHERE username=?", (email,))
+        data = db.fetchall()
+        user_id = data[0][0]
+        
+        # TODO - edit db to have parent phone numbers
+        student_info = (str(user_id), name, age, grade, dob, parent1, parent2, emergency, allergies, meds, parent1phone, parent2phone, emergency_phone)
+        db.execute("INSERT INTO STUDENTS (user_id, name, age, grade, dob, parent1, parent2, econtact, diet, meds, parent1phone, parent2phone, emergencyphone) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)", student_info)
+        conn.commit()
+        
+        return redirect("/")
 
 
 @app.route('/calendar')
 def calendar():
-    return render_template('json.html')
+    return render_template('calendar.html')
 
 @app.route('/profile')
 def profile():
@@ -87,10 +118,28 @@ def return_data():
     # but since no db or any real storage is implemented I'm just
     # returning data from a text file that contains json elements
 
+    # SQLite query to add username and password into database
+    conn = sqlite3.connect('database/database.db')
+    db = conn.cursor()
+    events = db.execute("SELECT * FROM EVENTS")
+    conn.commit()
+
+    # Pretty sure all of this can be written better but at least it works
+    js = []
+
+    for event in events:
+        d = {
+            'title': event[1],
+            'start': event[3],
+            'end': event[4],
+            'url': event[5]
+        }
+        js.append(d)
+
+    with open('events.json', 'w') as outfile:
+        json.dump(js, outfile)    
+
     with open("events.json", "r") as input_data:
-        # you should use something else here than just plaintext
-        # check out jsonfiy method or the built in json module
-        # http://flask.pocoo.org/docs/0.10/api/#module-flask.json
         return input_data.read()
 
 @app.route('/add', methods=["GET", "POST"])
@@ -109,11 +158,11 @@ def add_event():
 
         # IMPORTANT - for now this needs to run locally on someone's machine. 
         # remember to change this per your db's path!
-        conn = sqlite3.connect('database/updated_db.db')
+        conn = sqlite3.connect('database/database.db')
         db = conn.cursor()
 
         # SQLite query to add username and password into database
-        db.execute("INSERT INTO EVENTS (event_name, event_descrip) VALUES (?, ?)", (name, descrip,))
+        db.execute("INSERT INTO EVENTS (event_name, event_descrip, start, end, url) VALUES (?, ?, ?, ?, ?)", (name, descrip, start, end, url))
         conn.commit()
 
         return redirect("/")
