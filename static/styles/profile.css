@@ -39,3 +39,7 @@ img {
 .name h1 { 
     color: white;
 }
+
+.navbar-collapse.collapse.in {
+    display: block!important;
+ }
