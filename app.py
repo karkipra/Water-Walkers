@@ -89,17 +89,17 @@ def register():
         conn.commit()
         
         # get student's user_id
-        db.execute("SELECT * FROM MAIN WHERE username=?", email)
+        db.execute("SELECT * FROM MAIN WHERE username=?", (email,))
         data = db.fetchall()
-        user_id = data[0]
+        user_id = data[0][0]
         
         # TODO - edit db to have parent phone numbers
-        # TODO - figure out why this statement has a binding error
         student_info = (str(user_id), name, age, grade, dob, parent1, parent2, emergency, allergies, meds, parent1phone, parent2phone, emergency_phone)
         db.execute("INSERT INTO STUDENTS (user_id, name, age, grade, dob, parent1, parent2, econtact, diet, meds, parent1phone, parent2phone, emergencyphone) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)", student_info)
         conn.commit()
         
         return redirect("/")
+
 
 @app.route('/calendar')
 def calendar():
