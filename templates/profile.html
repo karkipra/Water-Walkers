@@ -1,0 +1,150 @@
+{% extends "layout.html" %}
+
+{% block head %}
+<title>Profile</title>
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<!--Bootsrap 4 CDN-->
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+<!--Fontawesome CDN-->
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+<!-- <link rel="stylesheet" href="static/styles/register.css?v=2"> -->
+<link rel="stylesheet" href="static/styles/profile.css">
+
+{% endblock %}
+
+{% block body %}
+
+<div class="main">
+	<div class = "spacing"></div> 
+
+            <div class="container d-flex align-items-center flex-column">
+                <!-- Image-->
+                <img class="user_image" src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png" alt="" />
+                <!-- Name-->
+                <div class = "space"></div> 
+                <div class="name"><h1>User's name</h1></div>
+            </div>
+        
+			<div class="card-body">
+                <form action="/register" method="POST">
+                    <!--Input name-->
+					<div class="input-group form-group">
+						<div class="input-group-prepend"></div>
+                        </div>
+                        <input type="text" autofocus="on" class="form-control" name="name" placeholder="Full Name">
+                    
+                    <!--Input password-->
+					<div class="input-group form-group">
+						<div class="input-group-prepend"></div>
+						</div>
+						<input type="password" class="form-control" name="password" placeholder="Password">
+                    
+                    <!--Input password confirmation-->
+					<div class="input-group form-group">
+						<div class="input-group-prepend"></div>
+						</div>
+						<input type="password" class="form-control" name="passwordconfirm" placeholder="Enter Your Password Again To Confirm">
+                   
+                    <!--Input age-->
+					<div class="input-group form-group">
+						<div class="input-group-prepend"></div>
+						</div>
+						<input type="number" class="form-control" name="age" placeholder="Age">
+                   
+                    <!--Input grade level //TODO: Drop down menu-->
+					<div class="input-group form-group">
+						<div class="input-group-prepend"></div>
+						</div>
+						<input type="number" class="form-control" name="grade" placeholder="Grade Level">
+                   
+                    <!--Input date of birth //TODO: Drop down menu-->
+					<div class="input-group form-group">
+						<div class="input-group-prepend"></div>
+						</div>
+						<input type="text" class="form-control" name="dob" placeholder="Date of Birth">
+                   
+                    <!--Input email-->
+					<div class="input-group form-group">
+						<div class="input-group-prepend"></div>
+						</div>
+						<input type="text" class="form-control" name="email" placeholder="Email">
+                    
+                    <!--Input primary parent/guardian name-->
+					<div class="input-group form-group">
+						<div class="input-group-prepend"></div>
+						</div>
+						<input type="text" class="form-control" name="parent1" placeholder="Primary Parent/Guardian Name">
+                   
+                    <!--Input primary parent/guardian phone number-->
+					<div class="input-group form-group">
+						<div class="input-group-prepend"></div>
+						</div>
+						<input type="text" class="form-control" name="parent1phone" placeholder="Primary Parent/Guardian Phone Number">
+                    
+                    <!--Input secondary parent/guardian name-->
+					<div class="input-group form-group">
+						<div class="input-group-prepend"></div>
+						</div>
+                        <input type="text" class="form-control" name="parent2" placeholder="Secondary Parent/Guardian Name">
+                   
+                    <!--Input secondary parent/guardian phone number-->
+					<div class="input-group form-group">
+						<div class="input-group-prepend"></div>
+						</div>
+                        <input type="text" class="form-control" name="parent2phone" placeholder="Secondary Parent/Guardian Phone Number">
+                    
+                    <!--Input emergency contact name-->
+					<div class="input-group form-group">
+						<div class="input-group-prepend"></div>
+						</div>
+						<input type="text" class="form-control" name="econtact" placeholder="Emergency Contact Name">
+                    
+                    <!--Input emergency contact phone number-->
+					<div class="input-group form-group">
+						<div class="input-group-prepend"></div>
+						</div>
+                        <input type="text" class="form-control" name="econtactphone" placeholder="Emergency Contact Phone Number">
+                    
+                    <!--Input food allergies-->
+					<div class="input-group form-group">
+						<div class="input-group-prepend"></div>
+						</div>
+                        <input type="text" class="form-control" name="allergies" placeholder="List any allergies your child may have">
+                    
+                    <!--Input special needs-->
+					<div class="input-group form-group">
+						<div class="input-group-prepend"></div>
+						</div>
+                        <input type="text" class="form-control" name="needs" placeholder="List any special needs your child may have">
+                    
+                    <!--Input medications-->
+					<div class="input-group form-group">
+						<div class="input-group-prepend"></div>
+						</div>
+                        <input type="text" class="form-control" name="medications" placeholder="List any medications your child may have">
+                    
+                    <!--Input other notes-->
+                    <div class="input-group form-group">
+						<div class="input-group-prepend"></div>
+						</div>
+                        <input type="text" class="form-control" name="notes" placeholder="Any other information you would like to provide">
+					
+					<div class = "space"></div> 
+					<!--Register button-->
+					<div class="form-group">
+                        <input type="submit" value="Save Changes" class="btn float-right login_btn">
+                    </div>
+                </form>
+            </div>
+            <!--Navigate back to login page-->
+			<div class="card-footer">
+				<div class="d-flex justify-content-center links">
+					<a href="/">Back to Homepage</a>
+                </div>
+			</div>
+
+</div>
+
+{% endblock %}
