@@ -1,14 +1,29 @@
 from flask import Flask, render_template, request, session, redirect
+from flask_bootstrap import Bootstrap
 import sqlite3
 
+# Initializing app
 app = Flask(__name__)
+# Initializing bootstrap
+bootstrap = Bootstrap(app)
 
 @app.route('/')
 def index():
-    # stuff
-
-    # temporary redirect 
-    return redirect("/register")
+    # Dummy data
+    user = {'username': 'Pratik'}
+    events = [
+        {
+            'event': 'Activity 1',
+            'date': 'Jan 1',
+            'body': 'Description!'
+        },
+        {
+            'event': 'Activity 2',
+            'date': 'Feb 1',
+            'body': 'Description!'
+        }
+    ]
+    return render_template('index.html', title='Water Walkers', user=user, events=events)
 
 # consider adding login_required aspect (http://flask.pocoo.org/docs/1.0/patterns/viewdecorators/)
 @app.route('/login', methods=["GET", "POST"])
@@ -43,4 +58,4 @@ def register():
         return "TODO"
 
 if __name__ == '__main__':
-    app.run() 
+    app.run(debug=True)
