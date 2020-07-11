@@ -1,0 +1,79 @@
+{% extends "layout.html" %}
+
+{% block head %}
+<title>Register</title>
+<link rel="stylesheet" href="static/styles.css">
+{% endblock %}
+
+{% block body %}
+<form action="/register" method="POST">
+    <h2>Student Name</h2>
+    <div class="form-group">
+        <input autocomplete="off" autofocus class = "form-control" name="name" placeholder="Joe Watersport" type="text">
+    </div>
+
+    <h2>Age</h2>
+    <div class="form-group">
+        <input autocomplete="off" autofocus class = "form-control" name="age" placeholder="8" type="number">
+    </div>
+
+    <h2>Grade Level</h2> <!--TODO: Drop down menu-->
+    <div class="form-group">
+        <input autocomplete="off" autofocus class = "form-control" name="grade" placeholder="3" type="number">
+    </div>
+
+    <h2>Date of Birth</h2> <!--TODO: Drop down menu-->
+    <div class="form-group">
+        <input autocomplete="off" autofocus class = "form-control" name="dob" placeholder="1/1/2000" type="text">
+    </div>
+
+    <h2>Email Address:</h2>
+    <div class="form-group">
+        <input autocomplete="off" autofocus class = "form-control" name="email" placeholder="goodperson@email.com" type="text">
+    </div>
+
+    <h2>Photo</h2> <!--TODO: Put actual photo thing-->
+    <div class="form-group">
+        <input autocomplete="off" autofocus class = "form-control" name="photo" placeholder="photo I guess" type="text">
+    </div>
+
+    <h2>Primary Parent/Guardian Name</h2>
+    <div class="form-group">
+        <input autocomplete="off" autofocus class = "form-control" name="parent1" placeholder="Jane Watersport" type="text">
+    </div>
+
+    <h2>Secondary Parent/Guardian Name</h2>
+    <div class="form-group">
+        <input autocomplete="off" autofocus class = "form-control" name="parent2" placeholder="Jack Watersport" type="text">
+    </div>
+
+    <h2>Emergency Contact</h2>
+    <div class="form-group">
+        <input autocomplete="off" autofocus class = "form-control" name="econtact" placeholder="James Watersport" type="text">
+    </div>
+    
+    <h2>Food Allergies</h2>
+    <div class="form-group">
+        <input autocomplete="off" autofocus class = "form-control" name="allergies" placeholder="Macadamia nuts" type="text">
+    </div>
+
+    <h2>Special Needs</h2>
+    <div class="form-group">
+        <input autocomplete="off" autofocus class = "form-control" name="needs" placeholder="ADHD?" type="text">
+    </div>
+
+    <h2>Medications</h2>
+    <div class="form-group">
+        <input autocomplete="off" autofocus class = "form-control" name="medications" placeholder="Flintstone vitamins" type="text">
+    </div>
+
+    <h2>Other Notes</h2>
+    <div class="form-group">
+        <input autocomplete="off" autofocus class = "form-control" name="notes" placeholder="other notes" type="text">
+    </div>
+
+    <!--TODO: Add attendance history-->
+
+    <button style="margin-top: 75px"class="main_button choice" type="submit">Register</button>
+</form>
+{% endblock %}
