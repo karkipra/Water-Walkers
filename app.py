@@ -13,7 +13,7 @@ def index():
     user = {'username': 'Pratik'}
 
     # SQLite query to add username and password into database
-    conn = sqlite3.connect('database/updated_db.db')
+    conn = sqlite3.connect('database/reupdated.db')
     db = conn.cursor()
     events = db.execute("SELECT * FROM EVENTS")
     conn.commit()
@@ -30,7 +30,7 @@ def login():
         username = request.form.get("username")
         password = request.form.get("password")
         
-        conn = sqlite3.connect('database/updated_db.db')
+        conn = sqlite3.connect('database/reupdated.db')
         db = conn.cursor()
         
         # look for username and password in database
@@ -79,7 +79,7 @@ def register():
         # NOTE - students are user type 1
         main_info = (1, email, password)
         
-        conn = sqlite3.connect('database/updated_db.db')
+        conn = sqlite3.connect('database/reupdated.db')
         db = conn.cursor()
         
         # main table updated
@@ -135,7 +135,7 @@ def add_event():
 
         # IMPORTANT - for now this needs to run locally on someone's machine. 
         # remember to change this per your db's path!
-        conn = sqlite3.connect('database/updated_db.db')
+        conn = sqlite3.connect('database/reupdated.db')
         db = conn.cursor()
 
         # SQLite query to add username and password into database
