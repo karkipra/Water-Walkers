@@ -9,21 +9,16 @@ bootstrap = Bootstrap(app)
 
 @app.route('/')
 def index():
-    # Dummy data
+
     user = {'username': 'Pratik'}
-    events = [
-        {
-            'event': 'Activity 1',
-            'date': 'Jan 1',
-            'body': 'Description!'
-        },
-        {
-            'event': 'Activity 2',
-            'date': 'Feb 1',
-            'body': 'Description!'
-        }
-    ]
-    return render_template('index.html', title='Water Walkers', user=user, events=events, calendar_view=False)
+
+    # SQLite query to add username and password into database
+    conn = sqlite3.connect('database/updated_db.db')
+    db = conn.cursor()
+    events = db.execute("SELECT * FROM EVENTS")
+    conn.commit()
+        
+    return render_template('index.html', title='Water Walkers', user=user, events=events)
 
 # consider adding login_required aspect (http://flask.pocoo.org/docs/1.0/patterns/viewdecorators/)
 @app.route('/login', methods=["GET", "POST"])
@@ -78,5 +73,31 @@ def return_data():
         # http://flask.pocoo.org/docs/0.10/api/#module-flask.json
         return input_data.read()
 
+@app.route('/add', methods=["GET", "POST"])
+def add_event():
+    # setup login page
+    if request.method == "GET":
+        return render_template("add_event.html")
+    else:
+        name = request.form.get("name")
+        descrip = request.form.get("descrip")
+
+        # these variables are unused for now
+        start = request.form.get("start")
+        end = request.form.get("end")
+        url = request.form.get("url")
+
+        # IMPORTANT - for now this needs to run locally on someone's machine. 
+        # remember to change this per your db's path!
+        conn = sqlite3.connect('database/updated_db.db')
+        db = conn.cursor()
+
+        # SQLite query to add username and password into database
+        db.execute("INSERT INTO EVENTS (event_name, event_descrip) VALUES (?, ?)", (name, descrip,))
+        conn.commit()
+
+        return redirect("/")
+        
+    
 if __name__ == '__main__':
     app.run(debug=True)

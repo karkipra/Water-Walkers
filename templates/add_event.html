@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+
+{% block head %}
+<title>Login Page</title>
+<link rel="stylesheet" href="styles.css">
+{% endblock %}
+
+{% block body %}
+<form action="/add" method="POST">
+	<div class="form-group">
+		<input autocomplete="off" autofocus class="form-control" name="name" placeholder="Event Name" type="text">
+	</div>
+	<div class="form-group">
+		<input class="form-control" name="descrip" placeholder="Event Description" type="text">
+    </div>
+    <div class="form-group">
+		<input class="form-control" name="start" placeholder="Event Start" type="text">
+    </div>
+    <div class="form-group">
+		<input class="form-control" name="end" placeholder="Event End" type="text">
+    </div>
+    <div class="form-group">
+		<input class="form-control" name="url" placeholder="Event URL" type="text">
+	</div>
+	<button class="login button" type="submit">Submit</button>
+</form>
+{% endblock %}
