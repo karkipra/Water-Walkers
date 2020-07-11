@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+
+{% block head %}
+<title>Login Page</title>
+<link rel="stylesheet" href="styles.css">
+{% endblock %}
+
+{% block body %}
+<form action="/login" method="POST">
+	<div class="form-group">
+		<input autocomplete="off" autofocus class="form-control" name="username" placeholder="Username" type="text">
+	</div>
+	<div class="form-group">
+		<input class="form-control" name="password" placeholder="Password" type="password">
+	</div>
+	<button class="login button" type="submit">Log In</button>
+	<button class="register button" type="button">Register</button>
+</form>
+{% endblock %}
