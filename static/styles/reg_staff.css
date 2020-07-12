@@ -17,7 +17,7 @@ align-content: center;
 }
 
 .card{
-height: 800px;
+height: 400px;
 margin-top: auto;
 margin-bottom: auto;
 width: 600px;
@@ -90,7 +90,7 @@ margin-left: 4px;
 }
 
 .spacing { 
-    height: 15px;
+    height: 10px;
 }
 
 .navbar-collapse.collapse.in {
