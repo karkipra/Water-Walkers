@@ -186,6 +186,10 @@ def add_event():
 @app.route('/Event1')
 def Event1():
     return render_template('Event1.html')
+
+@app.route('/RegisterStaff')
+def RegisterStaff():
+    return render_template('reg_staff.html')
         
 LOGGED_IN = False
     
