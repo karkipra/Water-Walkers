@@ -17,6 +17,10 @@ Partnered with Water Walkers for VandyHacks 2020, we designed a web application 
 - [x] Allow staff members to add events
 - [x] Allow staff members to keep track of student attendance to events
 
+## Demo
+
+![](demo.gif)
+
 ## Requirements
 * [Python](https://www.python.org/)
 * [Flask](https://flask.palletsprojects.com/en/1.1.x/)
