@@ -182,6 +182,10 @@ def add_event():
         conn.commit()
 
         return redirect("/")
+
+@app.route('/Event1')
+def Event1():
+    return render_template('Event1.html')
         
 LOGGED_IN = False
     
