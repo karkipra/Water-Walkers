@@ -20,7 +20,7 @@ def index():
     events = db.execute("SELECT * FROM EVENTS")
     conn.commit()
         
-    return render_template('index.html', title='Water Walkers', user=user, events=events)
+    return render_template('index.html', user=user, events=events)
 
 # consider adding login_required aspect (http://flask.pocoo.org/docs/1.0/patterns/viewdecorators/)
 @app.route('/login', methods=["GET", "POST"])
@@ -100,24 +100,25 @@ def register():
         
         return redirect("/")
 
-
 @app.route('/calendar')
 def calendar():
     return render_template('calendar.html')
 
 @app.route('/profile')
 def profile():
-    return render_template('profile.html')
+
+    conn = sqlite3.connect('database/database.db')
+    db = conn.cursor()
+
+    # SQLite query to add username and password into database
+    db.execute("SELECT * FROM STUDENTS") # user_id should be logged in user's id
+
+    student = db.fetchone()
+    
+    return render_template('profile.html', student=student)
 
 @app.route('/data')
 def return_data():
-    start_date = request.args.get('start', '')
-    end_date = request.args.get('end', '')
-    # You'd normally use the variables above to limit the data returned
-    # you don't want to return ALL events like in this code
-    # but since no db or any real storage is implemented I'm just
-    # returning data from a text file that contains json elements
-
     # SQLite query to add username and password into database
     conn = sqlite3.connect('database/database.db')
     db = conn.cursor()
