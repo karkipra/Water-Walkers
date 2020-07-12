@@ -167,7 +167,10 @@ def add_event():
         conn.commit()
 
         return redirect("/")
+
+@app.route('/Event1')
+def Event1():
+    return render_template('Event1.html')
         
-    
 if __name__ == '__main__':
     app.run(debug=True)
