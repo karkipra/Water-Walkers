@@ -14,20 +14,31 @@ def index():
     if not LOGGED_IN:
         return redirect("/login")
 
-    user = {'username': 'Pratik'}
-
     # SQLite query to add username and password into database
     conn = sqlite3.connect('database/database.db')
     db = conn.cursor()
+    if USER_TYPE == 1:
+        db.execute("SELECT * FROM STUDENTS where user_id=?", (USER_ID,))
+    elif USER_TYPE == 2:
+        db.execute("SELECT * FROM STAFF where user_id=?", (USER_ID,))
+
+    user = db.fetchone()
+
+    # ADD CHECK IF NAME IS NONE
+    name = user[1]
+
     events = db.execute("SELECT * FROM EVENTS")
     conn.commit()
         
-    return render_template('index.html', user=user, events=events)
+    return render_template('index.html', name=name, events=events, user_type=USER_TYPE)
 
 # consider adding login_required aspect (http://flask.pocoo.org/docs/1.0/patterns/viewdecorators/)
 @app.route('/login', methods=["GET", "POST"])
 def login():  
     global LOGGED_IN
+    global USER_ID
+    global USER_TYPE
+    
     if LOGGED_IN:
         return redirect("/")
 
@@ -42,9 +53,9 @@ def login():
         db = conn.cursor()
         
         # look for username and password in database
-        # TODO - check parenthesis
         db.execute("SELECT * FROM MAIN WHERE username=? AND password=?", (username, password))
         data = db.fetchall()
+        print(data)
         conn.commit()
 
         if len(data) != 1:
@@ -52,6 +63,8 @@ def login():
             return redirect("/login")
         else:
             LOGGED_IN = True
+            USER_ID = data[0][0]
+            USER_TYPE = data[0][1]
             return redirect("/")
 
 @app.route('/logout')
@@ -94,7 +107,7 @@ def register():
         
         # fill tuple with ordered col info
         # NOTE - students are user type 1
-        main_info = (1, email, password)
+        main_info = (USER_TYPE, email, password)
         
         conn = sqlite3.connect('database/database.db')
         db = conn.cursor()
@@ -126,7 +139,7 @@ def profile():
     db = conn.cursor()
 
     # SQLite query to add username and password into database
-    db.execute("SELECT * FROM STUDENTS") # user_id should be logged in user's id
+    db.execute("SELECT * FROM MAIN where user_id=?", (USER_ID,)) # user_id should be logged in user's id
 
     student = db.fetchone()
     
@@ -166,8 +179,6 @@ def add_event():
     else:
         name = request.form.get("name")
         descrip = request.form.get("descrip")
-
-        # these variables are unused for now
         start = request.form.get("start")
         end = request.form.get("end")
         url = request.form.get("url")
@@ -179,6 +190,8 @@ def add_event():
 
         # SQLite query to add username and password into database
         db.execute("INSERT INTO EVENTS (event_name, event_descrip, start, end, url) VALUES (?, ?, ?, ?, ?)", (name, descrip, start, end, url))
+        event_id = db.execute("SELECT event_id FROM EVENTS WHERE (event_name, event_descrip, start, end, url) ")
+
         conn.commit()
 
         return redirect("/")
@@ -188,6 +201,8 @@ def Event1():
     return render_template('Event1.html')
         
 LOGGED_IN = False
-    
+USER_ID = None 
+USER_TYPE = 0 
+
 if __name__ == '__main__':
     app.run(debug=True)
