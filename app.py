@@ -23,7 +23,7 @@ def index():
         db.execute("SELECT * FROM STAFF where user_id=?", (USER_ID,))
 
     user = db.fetchone()
-    
+
     # ADD CHECK IF NAME IS NONE
     name = user[1]
 
@@ -179,8 +179,6 @@ def add_event():
     else:
         name = request.form.get("name")
         descrip = request.form.get("descrip")
-
-        # these variables are unused for now
         start = request.form.get("start")
         end = request.form.get("end")
         url = request.form.get("url")
@@ -192,6 +190,8 @@ def add_event():
 
         # SQLite query to add username and password into database
         db.execute("INSERT INTO EVENTS (event_name, event_descrip, start, end, url) VALUES (?, ?, ?, ?, ?)", (name, descrip, start, end, url))
+        event_id = db.execute("SELECT event_id FROM EVENTS WHERE (event_name, event_descrip, start, end, url) ")
+
         conn.commit()
 
         return redirect("/")
