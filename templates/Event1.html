@@ -46,32 +46,16 @@
                 </tr>
             </thead>
             
+
             <tbody>
+                {% for att in attendees %}
                 <tr>
                     <td><input type="checkbox"></td>
-                    <td>Anna Taylor</td>
-                    <td>8</td>
+                    <td>{{att[0]}}</td>
+                    <td>{{att[1]}}</td>
                 </tr>
-                <tr>
-                    <td><input type="checkbox"></td>
-                    <td>Anna Taylor</td>
-                    <td>8</td>
-                </tr>
-                <tr>
-                    <td><input type="checkbox"></td>
-                    <td>Anna Taylor</td>
-                    <td>8</td>
-                </tr>
-                <tr>
-                    <td><input type="checkbox"></td>
-                    <td>Anna Taylor</td>
-                    <td>8</td>
-                </tr>
-                <tr>
-                    <td><input type="checkbox"></td>
-                    <td>Anna Taylor</td>
-                    <td>8</td>
-                </tr>
+                {% endfor %} 
+                
             </tbody>
         </table>
     </div>

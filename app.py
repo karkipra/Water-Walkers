@@ -55,7 +55,6 @@ def login():
         # look for username and password in database
         db.execute("SELECT * FROM MAIN WHERE username=? AND password=?", (username, password))
         data = db.fetchall()
-        print(data)
         conn.commit()
 
         if len(data) != 1:
@@ -190,16 +189,50 @@ def add_event():
 
         # SQLite query to add username and password into database
         db.execute("INSERT INTO EVENTS (event_name, event_descrip, start, end, url) VALUES (?, ?, ?, ?, ?)", (name, descrip, start, end, url))
-        event_id = db.execute("SELECT event_id FROM EVENTS WHERE event_name=?", (name,))
-        #new = Event(event_id)
+        #event_id = db.execute("SELECT event_id FROM EVENTS WHERE event_name=?", (name,))
 
         conn.commit()
 
         return redirect("/")
 
-@app.route('/Event1')
-def Event1():
-    return render_template('Event1.html')
+@app.route('/signup_student', methods=['GET', 'POST'])
+def signup_student():
+    if request.method == "POST":
+        index = request.form.get('event_id')
+        conn = sqlite3.connect('database/database.db')
+        db = conn.cursor()
+
+        # insert student and event data into database
+        # TODO - replace with INSERT OR IGNORE at some point
+        db.execute("SELECT * FROM ATTENDEES WHERE event_id=? AND student_id=?", (index, USER_ID))
+        data = db.fetchall()
+
+        # Don't insert if already present
+        if len(data) == 0:
+            db.execute("INSERT INTO ATTENDEES (event_id, student_id) VALUES (?,?)", (index, USER_ID,))
+            conn.commit()
+
+        return redirect("/")
+
+@app.route('/Event1/<index>')
+def Event1(index):
+    conn = sqlite3.connect('database/database.db')
+    db = conn.cursor()
+
+    # select students attending a given event
+    db.execute("SELECT * FROM ATTENDEES WHERE event_id=?", (index,))
+    data = db.fetchall()
+
+    attendees = []
+    for row in data:
+        student_id = row[1]
+        db.execute("SELECT name FROM STUDENTS WHERE user_id=?", (student_id,))
+        name = db.fetchone()
+        db.execute("SELECT grade FROM STUDENTS WHERE user_id=?", (student_id,))
+        grade = db.fetchone()
+        attendees.append((name[0], grade[0]))
+
+    return render_template('Event1.html', attendees=attendees)
         
 LOGGED_IN = False
 USER_ID = None 

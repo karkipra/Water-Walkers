@@ -6,7 +6,7 @@
             </a>
         </td>
         <td>
-            <a href="{{ url_for('Event1') }}">
+            <a href="{{ url_for('Event1', index=event[0]) }}">
                 {{ event[1] }}
             </a>
             <br>
@@ -17,6 +17,10 @@
             <b>End: {{ event[4] }}</b>
             <br>
             <b>URL: {{ event[5] }}</b>
+            <br>
+            <form action="/signup_student" method="post">
+                <button type="submit" name="event_id" value="{{ event[0] }}">Sign Up!</button>
+            </form>
         </td>
     </tr>
 </table>
