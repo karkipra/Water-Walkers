@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, session, redirect
+from flask import Flask, render_template, request, session, redirect, url_for
 from flask_bootstrap import Bootstrap
 import sqlite3
 from datetime import datetime 
@@ -11,6 +11,8 @@ bootstrap = Bootstrap(app)
 
 @app.route('/')
 def index():
+    if not LOGGED_IN:
+        return redirect("/login")
 
     user = {'username': 'Pratik'}
 
@@ -24,27 +26,40 @@ def index():
 
 # consider adding login_required aspect (http://flask.pocoo.org/docs/1.0/patterns/viewdecorators/)
 @app.route('/login', methods=["GET", "POST"])
-def login():
+def login():  
+    global LOGGED_IN
+    if LOGGED_IN:
+        return redirect("/")
+
     # setup login page
     if request.method == "GET":
         return render_template("login.html")
     else:
-        username = request.form.get("username")
+        username = request.form.get("email")
         password = request.form.get("password")
         
         conn = sqlite3.connect('database/database.db')
         db = conn.cursor()
         
         # look for username and password in database
-        db.execute("SELECT * FROM MAIN WHERE username=? AND password=?", username, password,)
+        # TODO - check parenthesis
+        db.execute("SELECT * FROM MAIN WHERE username=? AND password=?", (username, password))
         data = db.fetchall()
+        conn.commit()
 
         if len(data) != 1:
             # TODO - add way for user to see that they've added in the wrong info
             return redirect("/login")
         else:
+            LOGGED_IN = True
             return redirect("/")
 
+@app.route('/logout')
+def logout():
+    global LOGGED_IN
+    LOGGED_IN = False
+    return redirect("/login")
+    
 @app.route('/register', methods=["GET", "POST"])
 def register():
     if request.method =="GET":
@@ -168,6 +183,7 @@ def add_event():
 
         return redirect("/")
         
+LOGGED_IN = False
     
 if __name__ == '__main__':
     app.run(debug=True)
