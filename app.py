@@ -106,7 +106,7 @@ def register():
         
         # fill tuple with ordered col info
         # NOTE - students are user type 1
-        main_info = (USER_TYPE, email, password)
+        main_info = (1, email, password)
         
         conn = sqlite3.connect('database/database.db')
         db = conn.cursor()
@@ -234,11 +234,46 @@ def Event1(index):
 
     return render_template('Event1.html', attendees=attendees)
 
-@app.route('/RegisterStaff')
+@app.route('/RegisterStaff', methods=['GET', 'POST'])
 def RegisterStaff():
-    return render_template('reg_staff.html')
-
+    if request.method =="GET":
+        return render_template('reg_staff.html')
+    else:
+        # get values from form
+        name = request.form.get("name")
         
+        password = request.form.get("password")
+        confirm = request.form.get("passwordconfirm")
+
+        # TODO - show users that password doesn't match
+        if password != confirm:
+            return redirect("/register")
+        
+        emergency = request.form.get("contact")
+        meds = request.form.get("medical")
+        email = request.form.get("email")
+
+        main_info = (2, email, password)
+
+        conn = sqlite3.connect('database/database.db')
+        db = conn.cursor()
+        
+        # main table updated
+        db.execute("INSERT INTO MAIN (user_type, username, password) VALUES (?,?,?)", main_info)
+        conn.commit()
+        
+        # get staff's user_id
+        db.execute("SELECT * FROM MAIN WHERE username=?", (email,))
+        data = db.fetchall()
+        user_id = data[0][0]
+
+         # TODO - edit db to have parent phone numbers
+        staff_info = (str(user_id), name, emergency, meds)
+        db.execute("INSERT INTO STAFF (user_id, name, econtact, meds) VALUES (?,?,?,?)", staff_info)
+        conn.commit()
+        
+        return redirect("/")
+
 LOGGED_IN = False
 USER_ID = None 
 USER_TYPE = 0 
