@@ -190,7 +190,8 @@ def add_event():
 
         # SQLite query to add username and password into database
         db.execute("INSERT INTO EVENTS (event_name, event_descrip, start, end, url) VALUES (?, ?, ?, ?, ?)", (name, descrip, start, end, url))
-        event_id = db.execute("SELECT event_id FROM EVENTS WHERE (event_name, event_descrip, start, end, url) ")
+        event_id = db.execute("SELECT event_id FROM EVENTS WHERE event_name=?", (name,))
+        #new = Event(event_id)
 
         conn.commit()
 
