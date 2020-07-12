@@ -233,6 +233,11 @@ def Event1(index):
         attendees.append((name[0], grade[0]))
 
     return render_template('Event1.html', attendees=attendees)
+
+@app.route('/RegisterStaff')
+def RegisterStaff():
+    return render_template('reg_staff.html')
+
         
 LOGGED_IN = False
 USER_ID = None 
