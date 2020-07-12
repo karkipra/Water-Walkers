@@ -22,3 +22,9 @@ Partnered with Water Walkers for VandyHacks 2020, we designed a web application 
 * [Flask](https://flask.palletsprojects.com/en/1.1.x/)
 * [Flask Bootstrap](https://pythonhosted.org/Flask-Bootstrap/)
 * [SQLite3](https://www.sqlite.org/index.html)
+
+## Future Updates
+
+- Deploy to Heroku
+- Add more functionality with volunteers, parents
+- Optimize the storage and efficiency of the program
