@@ -131,6 +131,9 @@ def register():
 def calendar():
     return render_template('calendar.html')
 
+# TODO - add personalized calendar for each student
+# TODO - allow users to change some info
+# TODO - take photo of user
 @app.route('/profile')
 def profile():
 
@@ -170,9 +173,9 @@ def return_data():
     with open("events.json", "r") as input_data:
         return input_data.read()
 
+# TODO - make this page hidden for students
 @app.route('/add', methods=["GET", "POST"])
 def add_event():
-    # setup login page
     if request.method == "GET":
         return render_template("add_event.html")
     else:
@@ -214,6 +217,7 @@ def signup_student():
 
         return redirect("/")
 
+# TODO - allow only certain users (staff) to see list of students attending
 @app.route('/Event1/<index>')
 def Event1(index):
     conn = sqlite3.connect('database/database.db')
@@ -232,6 +236,8 @@ def Event1(index):
         grade = db.fetchone()
         attendees.append((name[0], grade[0]))
 
+    # TODO - pass in event description in this call - this can get selected from EVENTS table in DB
+    # TODO - pass in event details (location, contact, etc)
     return render_template('Event1.html', attendees=attendees)
 
 @app.route('/RegisterStaff', methods=['GET', 'POST'])
@@ -274,6 +280,7 @@ def RegisterStaff():
         
         return redirect("/")
 
+# TODO - replace this unsecure login mechanic
 LOGGED_IN = False
 USER_ID = None 
 USER_TYPE = 0 
