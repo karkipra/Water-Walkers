@@ -18,7 +18,9 @@
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                 <ul class="nav navbar-nav">
                     <li><a href="{{ url_for('index') }}">Home</a></li>
+                    {% if user_type == 2%}
                     <li><a href="{{ url_for('add_event') }}">Add Event</a></li>
+                    {% endif %}
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
                     <li><a href="{{ url_for('profile') }}">Profile</a></li>

@@ -18,9 +18,11 @@
             <br>
             <b>URL: {{ event[5] }}</b>
             <br>
+            {% if user_type == 1%}
             <form action="/signup_student" method="post">
-                <button type="submit" name="event_id" value="{{ event[0] }}">Sign Up!</button>
+                <button type="submit" name="event_id" value="{{ event[0] }}">I'm interested!</button>
             </form>
+            {% endif %}
         </td>
     </tr>
 </table>
