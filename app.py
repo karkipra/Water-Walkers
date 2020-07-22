@@ -163,7 +163,7 @@ def return_data():
             'title': event[1],
             'start': event[3],
             'end': event[4],
-            'url': event[5]
+            'address': event[5]
         }
         js.append(d)
 
@@ -183,7 +183,7 @@ def add_event():
         descrip = request.form.get("descrip")
         start = request.form.get("start")
         end = request.form.get("end")
-        url = request.form.get("url")
+        address = request.form.get("address")
 
         # IMPORTANT - for now this needs to run locally on someone's machine. 
         # remember to change this per your db's path!
@@ -191,10 +191,26 @@ def add_event():
         db = conn.cursor()
 
         # SQLite query to add username and password into database
-        db.execute("INSERT INTO EVENTS (event_name, event_descrip, start, end, url) VALUES (?, ?, ?, ?, ?)", (name, descrip, start, end, url))
+        db.execute("INSERT INTO EVENTS (event_name, event_descrip, start, end, address) VALUES (?, ?, ?, ?, ?)", (name, descrip, start, end, address))
         #event_id = db.execute("SELECT event_id FROM EVENTS WHERE event_name=?", (name,))
 
         conn.commit()
+
+        return redirect("/")
+
+# TODO - make this page hidden for students
+@app.route('/delete_event', methods=["GET", "POST"])
+def delete_event():
+    if request.method == "POST":
+        index = request.form.get('event_id')
+        conn = sqlite3.connect('database/database.db')
+        db = conn.cursor()
+
+        # delete event 
+        db.execute("DELETE FROM EVENTS WHERE event_id=?", (index,))
+        conn.commit()
+
+        # TODO popup that says "are you sure?"
 
         return redirect("/")
 
@@ -223,6 +239,10 @@ def Event1(index):
     conn = sqlite3.connect('database/database.db')
     db = conn.cursor()
 
+    # select event object
+    db.execute("SELECT * FROM EVENTS WHERE event_id=?", (index,))
+    event = db.fetchone()
+
     # select students attending a given event
     db.execute("SELECT * FROM ATTENDEES WHERE event_id=?", (index,))
     data = db.fetchall()
@@ -238,7 +258,7 @@ def Event1(index):
 
     # TODO - pass in event description in this call - this can get selected from EVENTS table in DB
     # TODO - pass in event details (location, contact, etc)
-    return render_template('Event1.html', attendees=attendees)
+    return render_template('Event1.html', attendees=attendees, event=event)
 
 @app.route('/RegisterStaff', methods=['GET', 'POST'])
 def RegisterStaff():

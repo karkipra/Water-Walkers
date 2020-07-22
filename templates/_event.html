@@ -16,11 +16,15 @@
             <br>
             <b>End: {{ event[4] }}</b>
             <br>
-            <b>URL: {{ event[5] }}</b>
+            <b>Address: {{ event[5] }}</b>
             <br>
             {% if user_type == 1%}
             <form action="/signup_student" method="post">
                 <button type="submit" name="event_id" value="{{ event[0] }}">I'm interested!</button>
+            </form>
+            {% elif user_type == 2 %}
+            <form action="/delete_event" method="post">
+                <button type="submit" name="event_id" value="{{ event[0] }}">Delete Event</button>
             </form>
             {% endif %}
         </td>
