@@ -163,7 +163,9 @@ def return_data():
             'title': event[1],
             'start': event[3],
             'end': event[4],
-            'address': event[5]
+            'address': event[5],
+            # adding url for that particular page for calendar.html
+            'url': url_for('Event1', index=event[0]) 
         }
         js.append(d)
 
