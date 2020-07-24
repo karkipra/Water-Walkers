@@ -6,8 +6,9 @@ backports-abc==0.5
 backports.functools-lru-cache==1.6.1
 backports.shutil-get-terminal-size==1.0.0
 bdist-mpkg==0.5.0
-bleach==3.1.4
+bleach==3.1.1
 bonjour-py==0.3
+cachelib==0.1.1
 certifi==2019.11.28
 cffi==1.12.2
 chardet==3.0.4
@@ -25,11 +26,14 @@ entrypoints==0.3
 enum34==1.1.6
 Flask==1.1.1
 Flask-Bootstrap==3.3.7.1
+Flask-Login==0.5.0
+Flask-Session==0.3.2
 Flask-WTF==0.14.3
 functools32==3.2.3.post2
 future==0.17.1
 futures==3.3.0
 GDAL==3.0.4
+gunicorn==19.10.0
 idna==2.9
 importlib-metadata==1.5.0
 ipaddress==1.0.22
