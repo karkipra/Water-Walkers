@@ -31,6 +31,6 @@ Please find the deployed version at https://water-walkers.herokuapp.com/.
 
 ## Future Updates
 
-- Deploy to Heroku
 - Add more functionality with volunteers, parents
 - Optimize the storage and efficiency of the program
+- Integrate with Docusign to effectively sign waivers
