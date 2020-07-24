@@ -12,6 +12,12 @@
 <script>
 
 	$(document).ready(function() {
+		// Get today's date to set as default
+		var today = new Date();
+		var dd = String(today.getDate()).padStart(2, '0');
+		var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+		var yyyy = today.getFullYear();
+		today = yyyy + '/' + mm + '/' + dd;
 
 		$('#calendar').fullCalendar({
 			header: {
@@ -19,13 +25,21 @@
 				center: 'title',
 				right: 'month,agendaWeek,agendaDay'
 			},
-			defaultDate: '2020-07-12',
+			defaultDate: today,
 			editable: true,
 			eventLimit: true, // allow "more" link when too many events
 			events: {
 				url: 'data',
 				error: function() {
 					$('#script-warning').show();
+				}
+				
+			}, 
+			eventClick: function(events) { // opens up the url 
+				events.jsEvent.preventDefault(); // don't let the browser navigate
+
+				if (events.url) {
+					window.open(events.url);
 				}
 			},
 			loading: function(bool) {
