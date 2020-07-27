@@ -1,11 +1,12 @@
+from app import app
+
 from flask import Flask, render_template, request, session, redirect, url_for
 from flask_bootstrap import Bootstrap
+#from flask.ext.sqlalchemy import SQLAlchemy
 import sqlite3
 from datetime import datetime 
 import json
 
-# Initializing app
-app = Flask(__name__)
 # Initializing bootstrap
 bootstrap = Bootstrap(app)
 
@@ -307,5 +308,3 @@ LOGGED_IN = False
 USER_ID = None 
 USER_TYPE = 0 
 
-if __name__ == '__main__':
-    app.run(debug=True)
