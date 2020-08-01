@@ -23,6 +23,26 @@ Please find the deployed version at https://water-walkers.herokuapp.com/.
 
 ![](demo.gif)
 
+## Installation Guide
+
+```bash
+# clone the repo
+$ git clone https://github.com/karkipra/Water-Walkers.git
+$ cd Water-Walkers
+
+# create a virtual env named 'venv'
+$ python3 -m venv venv
+
+# activate the venv 
+$ source venv/bin/activate
+
+# recursively install all the requirements 
+$ pip install -r requirements.txt
+
+# run the app!
+$ flask run
+```
+
 ## Requirements
 * [Python](https://www.python.org/)
 * [Flask](https://flask.palletsprojects.com/en/1.1.x/)
