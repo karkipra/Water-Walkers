@@ -1,4 +1,25 @@
-#interestedButton {
-    float: right;
-    background-color: blue;
+/* Made with love by Mutiullah Samim*/
+
+@import url('https://fonts.googleapis.com/css?family=Numans');
+
+html,body{
+background-image: url('http://getwallpapers.com/wallpaper/full/a/5/d/544750.jpg');
+background-attachment: fixed;
+background-size: cover;
+background-repeat: no-repeat; 
+height: 100%;
+font-family: 'Numans', sans-serif;
 }
+
+.form-group{
+    width: 100%
+}
+
+input{
+    border: px solid white;
+    border-radius: 4px;
+}
+
+.navbar-collapse.collapse.in {
+    display: block!important;
+  }
