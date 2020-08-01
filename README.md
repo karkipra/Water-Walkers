@@ -33,7 +33,7 @@ $ cd Water-Walkers
 # create a virtual env named 'venv'
 $ python3 -m venv venv
 
-# activate the venv 
+# activate the venv (if not already activated)
 $ source venv/bin/activate
 
 # recursively install all the requirements 
