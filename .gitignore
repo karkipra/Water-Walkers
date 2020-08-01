@@ -1,1 +1,5 @@
 events.json
+#database/database.db
+venv
+__pycache__
+app/__pycache__
