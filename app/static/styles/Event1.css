@@ -1,16 +1,9 @@
-@import url('https://fonts.googleapis.com/css?family=Numans');
-
 body { 
-    /* background: #eee; */
     color: #777;
 }
 
-img {
+.event_img {
     width:850px;
     height:600px;
 }
-
-.navbar-collapse.collapse.in {
-    display: block!important;
-  }
 
