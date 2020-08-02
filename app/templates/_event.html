@@ -26,6 +26,11 @@
             <form action="/delete_event" method="post">
                 <button type="submit" name="event_id" onclick="return confirm('Are you sure?')" value="{{ event[0] }}">Delete Event</button>
             </form>
+
+            <form action="/take_attendance">
+                <button type="submit" href=>Take Attendance</button>
+            </form>
+
             {% endif %}
         </td>
     </tr>
