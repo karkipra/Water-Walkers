@@ -1,4 +1,4 @@
-<table class="table table-hover">
+<table class="table table-hover table-bordered">
     <tr>
         <td width="70px">
             <a href="#">
@@ -20,7 +20,7 @@
             <br>
             {% if user_type == 1%}
             <form action="/signup_student" method="post">
-                <button type="submit" name="event_id" value="{{ event[0] }}">I'm interested!</button>
+                <button type="submit" name="event_id" value="{{ event[0] }}" style="float: right; background-color: lightblue; border-radius: 5px; padding: 5px 10px 5px 10px;">I'm interested!</button>
             </form>
             {% elif user_type == 2 %}
             <form action="/delete_event" method="post">
