@@ -213,9 +213,29 @@ def delete_event():
         db.execute("DELETE FROM EVENTS WHERE event_id=?", (index,))
         conn.commit()
 
-        # TODO popup that says "are you sure?"
-
         return redirect("/")
+
+@app.route('/take_attendance', methods=['GET', 'POST'])
+def take_attendance():
+    conn = sqlite3.connect('database/database.db')
+    db = conn.cursor()
+
+    # get list of all students
+    db.execute("SELECT * FROM STUDENTS")
+    students = db.fetchall()
+
+    if request.method == 'POST':
+        # check to see if on time or late
+        for student in students:
+            on_time = request.form.get(str(student[0]) + "o")
+            late = request.form.get(str(student[0]) + "l")
+
+        # TODO - add to database
+        
+        return redirect("/")
+    else:
+        # TODO - sort by name
+        return render_template('attendance.html', students=students)
 
 @app.route('/signup_student', methods=['GET', 'POST'])
 def signup_student():
