@@ -1,39 +1,40 @@
 {% extends "base.html" %}
 
 {% block head %}
-<title>Login Page</title>
-<link rel="stylesheet" type="text/css" href="static/styles/Event1.css">
+    <title>Login Page</title>
+    <!-- <link rel="stylesheet" type="text/css" href="static/styles/Event1.css"> -->
 {% endblock %}
 
 {% block app_content %}
 <body>
 
 <!-- EVENT INFO:  -->
-<div class="event"> 
-    <img class="event_image" src="https://cdn.pixabay.com/photo/2016/10/22/20/52/balloons-1761634_1280.jpg"  />
-    <h1>
-        {{ event[1] }}
-    </h1>
-    <p>
-        {{ event[2] }}
-    </p>
-    <br>   
-  <p>
+<div class ="event" style = "overflow: auto;"> 
+    <img style = "float:left; max-width: 70%; height: auto; margin-right: 20px;" class="event_image" src="https://cdn.pixabay.com/photo/2016/10/22/20/52/balloons-1761634_1280.jpg"  />
+    <div style="height: 50%;">
 
+    </div>
+        <h1>
+            {{ event[1] }}
+        </h1>
+        <p>
+            {{ event[2] }}
+        </p>
+        <br>   
+    <p>
       <strong>Date:</strong> {{ event[3] }} <br>
       <strong>Time:</strong> 2:30 PM <br>
       <strong>Address:</strong> {{ event[5] }}
     </p>
-
     
 </div>
-    <div>
-        <h3>Interested Students</h3>
-        
-        <table class="table table-hover table-striped">
+    <br>
+    <div class="second_div">
+        <h1>Interested Students</h1>
+        <table class="table table-hover table-striped" style = "table-layout: auto; width: 100%;">
             <thead>
                 <tr>
-                    <th><input type="checkbox"></th>
+                    <th><input type="checkbox"></th> 
                     <th>Name</th>
                     <th>Grade</th>
                 </tr>
