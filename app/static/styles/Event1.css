@@ -2,9 +2,10 @@ body {
     color: #777;
 }
 
-.event_img {
-    width:850px;
-    height:600px;
+img {
+    max-width: 70%;
+    height: auto;
+    float: left;
 }
 
 .navbar-collapse.collapse.in {
