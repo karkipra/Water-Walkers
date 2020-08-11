@@ -1,11 +1,13 @@
+{% extends "base.html" %}
 
-
-<!DOCTYPE html>
-<html>
-<head>
+{% block head %}
+<title>Calendar View</title>
 <meta charset='utf-8' />
 <link href="{{ url_for('static', filename='fullcalendar.min.css') }}" rel='stylesheet' />
 <link href="{{ url_for('static', filename='fullcalendar.print.css') }}" rel='stylesheet' media='print' />
+{% endblock %}
+
+{% block scripts %}
 <script src="{{ url_for('static', filename='lib/moment.min.js') }}"></script>
 <script src="{{ url_for('static', filename='lib/jquery.min.js') }}"></script>
 <script src="{{ url_for('static', filename='fullcalendar.min.js') }}"></script>
@@ -50,16 +52,11 @@
 	});
 
 </script>
-<link rel="stylesheet" type="text/css" href="/static/styles/calendar.css?v=1.5">
-</head>
+{% endblock %}
 
-<body>
-	<div>
-		<button>
-			<a href="{{ url_for('index') }}" class="homeButton">Home</a>
-		</button>
-	</div>
+{% block app_content %}
 
+	<!--Confused on what's happening in this warning since things seem to be working on the webpage itself-->
 	<div id='script-warning'>
 		Error getting data from <code>/data</code> endpoint.
 	</div>
@@ -67,6 +64,4 @@
 	<div id='loading'>loading...</div>
 
 	<div id='calendar'></div>
-
-</body>
-</html>
+{% endblock %}

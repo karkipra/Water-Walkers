@@ -8,6 +8,11 @@
 
 {% block app_content %}
 	<h1>Hi, {{ name }}! </h1>
+	{% if user_type == 2%}
+	<form action="{{ url_for('add_event') }}" method="GET" class="mt-auto">
+		<button type="submit" class="btn btn-md btn-primary">Add Event</button>
+	</form>
+    {% endif %}
 	<br>
 	<div class="container">
 		<div class="row">
