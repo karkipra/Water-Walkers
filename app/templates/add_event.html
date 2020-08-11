@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block app_content %}
-<form action="/add" method="POST">
+<form action="/add" method="POST" style="margin-top: 20px;">
 	<div class="form-group">
 		<input type="text" autocomplete="off" autofocus="on" class="form-control" name="name" placeholder="Event Name">
 	</div>
@@ -22,6 +22,6 @@
 		<input type="text"class="form-control" name="address" placeholder="Event Address">
 	</div>
 
-	<button class="btn float-right login_btn" type="submit">Submit</button>
+	<button class="btn float-right btn-md btn-outline-primary" type="submit">Submit</button>
 </form>
 {% endblock %}
