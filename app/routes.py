@@ -6,9 +6,22 @@ from flask_bootstrap import Bootstrap
 import sqlite3
 from datetime import datetime 
 import json
+from mailchimp_marketing import Client
 
 # Initializing bootstrap
 bootstrap = Bootstrap(app)
+
+# Initializing mailchimp
+# NOTE - these values depend on the account - don't forget to change them if you move to a different one
+mailchimp = Client()
+mailchimp.set_config({
+    "api_key": "3c4802bf23a2d7f0ba5b211f5334b92a-us17",
+    "server" : "us17"
+})
+
+# test that mailchimp is working correctly - should print "everything's chimpy!"
+response = mailchimp.ping.get()
+print(response)
 
 @app.route('/')
 def index():
