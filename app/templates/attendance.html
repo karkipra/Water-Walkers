@@ -2,7 +2,7 @@
 
 {% block app_content%}
 
-<form action="/take_attendance" method="POST">
+<form action="{{ url_for('take_attendance', index=index) }}" method="POST">
     <table style="width:50%">
     <tr>
         <th>Student</th>

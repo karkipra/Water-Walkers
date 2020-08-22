@@ -215,8 +215,8 @@ def delete_event():
 
         return redirect("/")
 
-@app.route('/take_attendance', methods=['GET', 'POST'])
-def take_attendance():
+@app.route('/take_attendance/<index>', methods=['GET', 'POST'])
+def take_attendance(index):
     conn = sqlite3.connect('database/database.db')
     db = conn.cursor()
 
@@ -227,15 +227,26 @@ def take_attendance():
     if request.method == 'POST':
         # check to see if on time or late
         for student in students:
-            on_time = request.form.get(str(student[0]) + "o")
-            late = request.form.get(str(student[0]) + "l")
+            attendance_data = [request.form.get(str(student[0]) + "o"),
+                            request.form.get(str(student[0]) + "l")]
 
-        # TODO - add to database
-        
+            # since sqlite can't handle booleans, we have to convert them to integers (0=T, 1=F)
+            db_values = []
+            for field in attendance_data:
+                if field:
+                    db_values.append(0)
+                else:
+                    db_values.append(1)
+
+            # TODO - add behavior and left early
+
+            db.execute("INSERT INTO ATTENDEES (event_id, student_id, late) VALUES (?,?,?)", (index, student[0], db_values[1]))
+            conn.commit()
+
         return redirect("/")
     else:
         # TODO - sort by name
-        return render_template('attendance.html', students=students)
+        return render_template('attendance.html', students=students, index=index)
 
 @app.route('/signup_student', methods=['GET', 'POST'])
 def signup_student():
