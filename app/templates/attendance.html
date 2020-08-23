@@ -8,6 +8,8 @@
         <th>Student</th>
         <th>On Time</th> 
         <th>Late</th>
+        <th>Left Early</th>
+        <th>Behavioral Issue</th>
     </tr>
 
         {% for student in students %}
@@ -16,6 +18,8 @@
                 <td>{{student[1]}}</td>
                 <td><input type="checkbox" name={{student[0]}}o></td>
                 <td><input type="checkbox" name={{student[0]}}l></td>
+                <td><input type="checkbox" name={{student[0]}}le></td>
+                <td><input type="checkbox" name={{student[0]}}b></td>
             </tr>
         {% endfor %}
     </table>
