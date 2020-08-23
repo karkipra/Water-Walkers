@@ -21,8 +21,8 @@
                         <button type="submit" name="event_id" onclick="return confirm('Are you sure you want to delete this event?')" value="{{ event[0] }}" class="btn btn-sm btn-outline-secondary">Delete Event</button>
                     </form>
                     <br>
-                    <form action="/take_attendance" method="POST" class="mt-auto text-right" style="margin-top: 0!important">
-                        <button type="submit" class="btn btn-block btn-lg btn-outline-success" href=>Take Attendance</button>
+                    <form action="{{ url_for('take_attendance', index=event[0]) }}" method="GET" class="mt-auto text-right" style="margin-top: 0!important">
+                        <button type="submit" name="event_id" value="{{ event[0] }}"class="btn btn-block btn-lg btn-outline-success" href=>Take Attendance</button>
                     </form>
                     {% endif %}
                 </p>
