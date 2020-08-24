@@ -41,12 +41,12 @@ def index():
     user = db.fetchone()
 
     # ADD CHECK IF NAME IS NONE
-    name = user[1]
+    firstname = user[1]
 
     events = db.execute("SELECT * FROM EVENTS")
     conn.commit()
         
-    return render_template('index.html', name=name, events=events, user_type=USER_TYPE)
+    return render_template('index.html', name=firstname, events=events, user_type=USER_TYPE)
 
 # consider adding login_required aspect (http://flask.pocoo.org/docs/1.0/patterns/viewdecorators/)
 @app.route('/login', methods=["GET", "POST"])
@@ -71,7 +71,7 @@ def login():
         # look for username and password in database
         db.execute("SELECT * FROM MAIN WHERE username=? AND password=?", (username, password))
         data = db.fetchall()
-        conn.commit()
+        conn.commit() # is this line needed? not editing anything in db, just looking
 
         if len(data) != 1:
             # TODO - add way for user to see that they've added in the wrong info
@@ -94,8 +94,9 @@ def register():
         return render_template("register.html")
     else:
         # get values from form
-        name = request.form.get("name")
-        
+        fname = request.form.get("fname")
+        lname = request.form.get("lname")
+
         password = request.form.get("password")
         confirm = request.form.get("passwordconfirm")
         
@@ -137,8 +138,8 @@ def register():
         user_id = data[0][0]
         
         # TODO - edit db to have parent phone numbers
-        student_info = (str(user_id), name, age, grade, dob, parent1, parent2, emergency, allergies, meds, parent1phone, parent2phone, emergency_phone)
-        db.execute("INSERT INTO STUDENTS (user_id, name, age, grade, dob, parent1, parent2, econtact, diet, meds, parent1phone, parent2phone, emergencyphone) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)", student_info)
+        student_info = (str(user_id), fname, lname, age, grade, dob, parent1, parent2, emergency, allergies, meds, parent1phone, parent2phone, emergency_phone)
+        db.execute("INSERT INTO STUDENTS (user_id, firstname, lastname, age, grade, dob, parent1, parent2, econtact, diet, meds, parent1phone, parent2phone, emergencyphone) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)", student_info)
         conn.commit()
         
         return redirect("/")
@@ -165,7 +166,6 @@ def profile():
 
 @app.route('/data')
 def return_data():
-    # SQLite query to add username and password into database
     conn = sqlite3.connect('database/database.db')
     db = conn.cursor()
     events = db.execute("SELECT * FROM EVENTS")
@@ -191,7 +191,6 @@ def return_data():
     with open("events.json", "r") as input_data:
         return input_data.read()
 
-# TODO - make this page hidden for students
 @app.route('/add', methods=["GET", "POST"])
 def add_event():
     if request.method == "GET":
@@ -273,6 +272,7 @@ def take_attendance(index):
         # TODO - sort by name
         return render_template('attendance.html', students=students, index=index)
         
+# TODO - this could be modified to add students to a seperate db table rather than attendees
 @app.route('/signup_student', methods=['GET', 'POST'])
 def signup_student():
     if request.method == "POST":
@@ -309,11 +309,13 @@ def Event1(index):
     attendees = []
     for row in data:
         student_id = row[1]
-        db.execute("SELECT name FROM STUDENTS WHERE user_id=?", (student_id,))
-        name = db.fetchone()
+        db.execute("SELECT firstname FROM STUDENTS WHERE user_id=?", (student_id,))
+        fname = db.fetchone()
+        db.execute("SELECT lastname FROM STUDENTS WHERE user_id=?", (student_id,))
+        lname = db.fetchone()
         db.execute("SELECT grade FROM STUDENTS WHERE user_id=?", (student_id,))
         grade = db.fetchone()
-        attendees.append((name[0], grade[0]))
+        attendees.append((fname[0], lname[0], grade[0]))
 
     # TODO - pass in event description in this call - this can get selected from EVENTS table in DB
     # TODO - pass in event details (location, contact, etc)
@@ -325,14 +327,15 @@ def RegisterStaff():
         return render_template('reg_staff.html')
     else:
         # get values from form
-        name = request.form.get("name")
+        fname = request.form.get("fname")
+        lname = request.form.get("lname")
         
         password = request.form.get("password")
         confirm = request.form.get("passwordconfirm")
 
         # TODO - show users that password doesn't match
         if password != confirm:
-            return redirect("/register")
+            return redirect("/RegisterStaff")
         
         emergency = request.form.get("contact")
         meds = request.form.get("medical")
@@ -353,8 +356,8 @@ def RegisterStaff():
         user_id = data[0][0]
 
          # TODO - edit db to have parent phone numbers
-        staff_info = (str(user_id), name, emergency, meds)
-        db.execute("INSERT INTO STAFF (user_id, name, econtact, meds) VALUES (?,?,?,?)", staff_info)
+        staff_info = (str(user_id), fname, lname, emergency, meds)
+        db.execute("INSERT INTO STAFF (user_id, firstname, lastname, econtact, meds) VALUES (?,?,?,?,?)", staff_info)
         conn.commit()
         
         return redirect("/")
