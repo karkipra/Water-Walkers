@@ -242,21 +242,31 @@ def take_attendance(index):
     if request.method == 'POST':
         # check to see if on time or late
         for student in students:
-            attendance_data = [request.form.get(str(student[0]) + "o"),
-                            request.form.get(str(student[0]) + "l")]
+            attendance_data = [ request.form.get(str(student[0]) + "o"),
+                                request.form.get(str(student[0]) + "l"),
+                                request.form.get(str(student[0]) + "le"),
+                                request.form.get(str(student[0]) + "b"), ]
 
             # since sqlite can't handle booleans, we have to convert them to integers (0=T, 1=F)
-            db_values = []
-            for field in attendance_data:
-                if field:
-                    db_values.append(0)
+            # the default value is a student isn't present at the event
+            db_values = [1, 1, 1, 1]
+
+            for i in range(len(attendance_data)):
+                if attendance_data[i]:
+                    db_values[i] -= 1
+
+            # only insert students who have at least one checkmark in some field
+            if sum(db_values) != 4:
+                db.execute("SELECT * FROM ATTENDEES WHERE event_id=? AND student_id=?", (index, student[0]))
+                data = db.fetchall()
+
+                # check to see if it's an update for attendance (eg. leaving early) or a new record
+                if len(data) == 0:
+                    db.execute("INSERT INTO ATTENDEES (event_id, student_id, late, left_early, behavior_issue) VALUES (?,?,?,?,?)", (index, student[0], db_values[1], db_values[2], db_values[3]))
                 else:
-                    db_values.append(1)
+                    db.execute("UPDATE ATTENDEES SET late = ?, left_early = ?, behavior_issue = ? WHERE event_id = ? and student_id = ?", (db_values[1], db_values[2], db_values[3], index, student[0]))
 
-            # TODO - add behavior and left early
-
-            db.execute("INSERT INTO ATTENDEES (event_id, student_id, late) VALUES (?,?,?)", (index, student[0], db_values[1]))
-            conn.commit()
+                conn.commit()
 
         return redirect("/")
     else:
