@@ -362,6 +362,10 @@ def RegisterStaff():
         
         return redirect("/")
 
+@app.route('/forgot_pwd')
+def forgot_pwd():
+    return render_template('forgot_pwd.html')
+
 # TODO - replace this unsecure login mechanic
 LOGGED_IN = False
 USER_ID = None 
