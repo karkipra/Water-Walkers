@@ -1,46 +1,43 @@
-{% extends "base.html" %}
+{% extends "base.html" %} {% block head %}
+<title>Login Page</title>
+<!-- <link rel="stylesheet" type="text/css" href="static/styles/Event1.css"> -->
+{% endblock %} {% block app_content %}
 
-{% block head %}
-    <title>Login Page</title>
-    <!-- <link rel="stylesheet" type="text/css" href="static/styles/Event1.css"> -->
-{% endblock %}
-
-{% block app_content %}
 <body>
 
-<!-- EVENT INFO:  -->
-<div class ="event" style = "overflow: auto; margin-top: 20px;"> 
-    <img style = "float:left; max-width: 70%; height: auto; margin-right: 20px;" class="event_image" src="https://cdn.pixabay.com/photo/2016/10/22/20/52/balloons-1761634_1280.jpg"  />
-    <div style="height: 50%;">
+    <!-- EVENT INFO:  -->
+    <div class="event" style="overflow: auto; margin-top: 20px;">
+        <img style="float:left; max-width: 70%; height: auto; margin-right: 20px;" class="event_image" src="https://cdn.pixabay.com/photo/2016/10/22/20/52/balloons-1761634_1280.jpg" />
+        <div style="height: 50%;">
 
-    </div>
+        </div>
         <h1>
             {{ event[1] }}
         </h1>
         <p>
             {{ event[2] }}
         </p>
-        <br>   
-    <p>
-      <strong>Date:</strong> {{ event[3] }} <br>
-      <strong>Time:</strong> 2:30 PM <br>
-      <strong>Address:</strong> {{ event[5] }}
-    </p>
-    
-</div>
+        <br>
+        <p>
+            <strong>Date:</strong> {{ event[3].split('T')[0] }} <br>
+            <strong>Time:</strong> {{ event[3].split('T')[1] }} to {{ event[4].split('T')[1] }}<br>
+            <strong>Address:</strong> {{ event[5] }}
+        </p>
+
+    </div>
     <br>
     <div class="second_div">
         <h1>Interested Students</h1>
-        <table class="table table-hover table-striped" style = "table-layout: auto; width: 100%;">
+        <table class="table table-hover table-striped" style="table-layout: auto; width: 100%;">
             <thead>
                 <tr>
-                    <th><input type="checkbox"></th> 
+                    <th><input type="checkbox"></th>
                     <th>First Name</th>
                     <th>Last Name</th>
                     <th>Grade</th>
                 </tr>
             </thead>
-            
+
             <!-- Add isStudent-->
             <tbody>
                 {% for att in attendees %}
@@ -50,11 +47,10 @@
                     <td>{{att[1]}}</td>
                     <td>{{att[2]}}</td>
                 </tr>
-                {% endfor %} 
-                
+                {% endfor %}
+
             </tbody>
         </table>
     </div>
 </body>
 {% endblock %}
-
