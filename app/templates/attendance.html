@@ -3,30 +3,40 @@
 {% block app_content%}
 
 <form action="{{ url_for('take_attendance', index=index) }}" method="POST">
-    <table style="width:50%">
-    <tr>
-        <th>Student</th>
-        <th>On Time</th> 
-        <th>Late</th>
-        <th>Left Early</th>
-        <th>Behavioral Issue</th>
-    </tr>
 
+<div class="container">
+    <div class="row">
         {% for student in students %}
-            <tr>
-                <!-- each checkbox has its own name-->
-                <td>{{student[1] + " " + student[2]}}</td>
-                <td><input type="checkbox" name={{student[0]}}o></td>
-                <td><input type="checkbox" name={{student[0]}}l></td>
-                <td><input type="checkbox" name={{student[0]}}le></td>
-                <td><input type="checkbox" name={{student[0]}}b></td>
-            </tr>
+        <div class="col-lg-6 col-md-6 col-sm-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-12 col-lg-6 col-md-6 text-center">
+                            <img class="profile-pic" src="http://placehold.it/80">
+                            <br>
+                            <button class="btn btn-sm btn-success" style="width: 60px;">250</button>
+                            <button class="btn btn-sm btn-primary" style="width: 60px;">Profile</button>
+                            <h4 class="mb-0 text-truncated">{{student[1] + " " + student[2]}}</h4>
+                            <p>Grade: 8</p>
+                        </div>
+                        <div class="col-12 col-lg-6 col-md-6">
+                            <span style="padding-right: 10px"><input type="checkbox" name={{student[0]}}o> On Time</span>
+                            <span style="padding-right: 10px"><input type="checkbox" name={{student[0]}}l> Late</span>
+                            <span style="padding-right: 10px"><input type="checkbox" name={{student[0]}}le> Left Early</span>
+                            <span style="padding-right: 10px"><input type="checkbox" name={{student[0]}}b> Behavioral Issues</span>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         {% endfor %}
-    </table>
-
-    <div class="form-group">
-        <input type="submit" value="Submit" class="btn float-right login_btn">
     </div>
+</div>
+<br>
+<div class="form-group">
+    <input type="submit" value="Submit" class="btn btn-primary float-right login_btn">
+</div>
 </form>
 
 {% endblock %}
