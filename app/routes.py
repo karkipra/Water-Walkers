@@ -144,8 +144,8 @@ def register():
         user_id = data[0][0]
         
         # TODO - edit db to have parent phone numbers
-        student_info = (str(user_id), fname, lname, age, grade, dob, parent1, parent2, emergency, allergies, meds, parent1phone, parent2phone, emergency_phone, gender, school, ethnicity, immunizations)
-        db.execute("INSERT INTO STUDENTS (user_id, firstname, lastname, age, grade, dob, parent1, parent2, econtact, diet, meds, parent1phone, parent2phone, emergencyphone, gender, school, ethnicity, immunizations) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", student_info)
+        student_info = (str(user_id), fname, lname, age, grade, dob, parent1, parent2, emergency, allergies, meds, parent1phone, parent2phone, emergency_phone, gender, school, ethnicity, immunizations, notes)
+        db.execute("INSERT INTO STUDENTS (user_id, firstname, lastname, age, grade, dob, parent1, parent2, econtact, diet, meds, parent1phone, parent2phone, emergencyphone, gender, school, ethnicity, immunizations, notes) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", student_info)
         conn.commit()
         
         return redirect("/")
@@ -351,6 +351,11 @@ def RegisterStaff():
         meds = request.form.get("medical")
         email = request.form.get("email")
 
+        # NEW - not in this order
+        gender = request.form.get("gender")
+        allergies = request.form.get("allergies")
+        immunizations = request.form.get("immunizations")
+
         main_info = (2, email, password)
 
         conn = sqlite3.connect('database/database.db')
@@ -366,8 +371,8 @@ def RegisterStaff():
         user_id = data[0][0]
 
          # TODO - edit db to have parent phone numbers
-        staff_info = (str(user_id), fname, lname, emergency, meds)
-        db.execute("INSERT INTO STAFF (user_id, firstname, lastname, econtact, meds) VALUES (?,?,?,?,?)", staff_info)
+        staff_info = (str(user_id), fname, lname, emergency, meds, gender, allergies, immunizations)
+        db.execute("INSERT INTO STAFF (user_id, firstname, lastname, econtact, meds, gender, allergies, immunizations) VALUES (?,?,?,?,?,?,?,?)", staff_info)
         conn.commit()
         
         return redirect("/")
