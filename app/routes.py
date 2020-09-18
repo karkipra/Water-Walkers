@@ -16,7 +16,7 @@ bootstrap = Bootstrap(app)
 # NOTE - these values depend on the account - don't forget to change them if you move to a different one
 mailchimp = Client()
 mailchimp.set_config({
-    "api_key": "3c4802bf23a2d7f0ba5b211f5334b92a-us17",
+    "api_key": "FIXME",
     "server" : "us17"
 })
 
@@ -237,6 +237,10 @@ def take_attendance(index):
     # get list of all students
     db.execute("SELECT * FROM STUDENTS")
     students = db.fetchall()
+
+    # sort students by last name
+    # students is a list of tuples (each student is a tuple)
+    students.sort(key = lambda x: x[2])
 
     if request.method == 'POST':
         # check to see if on time or late
