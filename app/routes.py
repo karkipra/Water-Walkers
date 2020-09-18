@@ -108,6 +108,12 @@ def register():
         grade = request.form.get("grade")
         dob = request.form.get("dob")
         email = request.form.get("email")
+
+        # NEW - not added to the html in this order
+        school = request.form.get("school")
+        gender = request.form.get("gender")
+        ethnicity = request.form.get("ethnicity")
+        immunizations = request.form.get("immunizations")
         
         parent1 = request.form.get("parent1")
         parent1phone = request.form.get("parent1phone")
@@ -138,8 +144,8 @@ def register():
         user_id = data[0][0]
         
         # TODO - edit db to have parent phone numbers
-        student_info = (str(user_id), fname, lname, age, grade, dob, parent1, parent2, emergency, allergies, meds, parent1phone, parent2phone, emergency_phone)
-        db.execute("INSERT INTO STUDENTS (user_id, firstname, lastname, age, grade, dob, parent1, parent2, econtact, diet, meds, parent1phone, parent2phone, emergencyphone) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)", student_info)
+        student_info = (str(user_id), fname, lname, age, grade, dob, parent1, parent2, emergency, allergies, meds, parent1phone, parent2phone, emergency_phone, gender, school, ethnicity, immunizations)
+        db.execute("INSERT INTO STUDENTS (user_id, firstname, lastname, age, grade, dob, parent1, parent2, econtact, diet, meds, parent1phone, parent2phone, emergencyphone, gender, school, ethnicity, immunizations) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", student_info)
         conn.commit()
         
         return redirect("/")
