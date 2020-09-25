@@ -6,60 +6,75 @@
     {% block app_content %}
     <div class="d-flex justify-content-center h-100" style="margin-top: 20px;">
         <div class="card">
-            <div class="card-header" style=" width: 400px; ">
+            <div class="card-header" style=" width: 400px;">
                 <h3>Register Staff Members</h3>
             </div>
 
-            <div class="card-body ">
-                <form action="/RegisterStaff " method="POST ">
-                    <div class="input-group form-group ">
-                        <div class="input-group-prepend "></div>
+            <div class="card-body">
+                <form action="/RegisterStaff" method="POST">
+                    <div class="input-group form-group">
+                        <div class="input-group-prepend"></div>
                     </div>
-                    <input type="text " autofocus="on " class="form-control " name="fname " placeholder="First Name ">
+                    <input type="text" autofocus="on" class="form-control" name="fname" placeholder="First Name">
 
-                    <div class="input-group form-group ">
-                        <div class="input-group-prepend "></div>
+                    <div class="input-group form-group">
+                        <div class="input-group-prepend"></div>
                     </div>
-                    <input type="text " autofocus="on " class="form-control " name="lname " placeholder="Last Name ">
+                    <input type="text" autofocus="on" class="form-control" name="lname" placeholder="Last Name">
+
+                    <div class="input-group form-group">
+                        <div class="input-group-prepend"></div>
+                    </div>
+                    <input type="text" autofocus="on" class="form-control" name="gender" placeholder="Gender">
 
                     <!--Input email-->
-                    <div class="input-group form-group ">
-                        <div class="input-group-prepend "></div>
+                    <div class="input-group form-group">
+                        <div class="input-group-prepend"></div>
                     </div>
-                    <input type="text " autofocus="on " class="form-control " name="email " placeholder="Email Address ">
+                    <input type="text" autofocus="on" class="form-control" name="email" placeholder="Email Address">
 
                     <!--Input password-->
-                    <div class="input-group form-group ">
-                        <div class="input-group-prepend "></div>
+                    <div class="input-group form-group">
+                        <div class="input-group-prepend"></div>
                     </div>
-                    <input type="password " class="form-control " name="password " placeholder="Password ">
+                    <input type="password" class="form-control" name="password" placeholder="Password">
 
                     <!--Input password confirmation-->
-                    <div class="input-group form-group ">
-                        <div class="input-group-prepend "></div>
+                    <div class="input-group form-group">
+                        <div class="input-group-prepend"></div>
                     </div>
-                    <input type="password " class="form-control " name="passwordconfirm " placeholder="Enter Your Password Again To Confirm ">
+                    <input type="password" class="form-control" name="passwordconfirm" placeholder="Enter Your Password Again To Confirm">
 
-                    <div class="input-group form-group ">
-                        <div class="input-group-prepend "></div>
+                    <div class="input-group form-group">
+                        <div class="input-group-prepend"></div>
                     </div>
-                    <input type="text " autofocus="on " class="form-control " name="contact " placeholder="Emergency Contact Name ">
+                    <input type="text" autofocus="on" class="form-control" name="contact" placeholder="Emergency Contact Name">
 
-                    <div class="input-group form-group ">
-                        <div class="input-group-prepend "></div>
+                    <div class="input-group form-group">
+                        <div class="input-group-prepend"></div>
                     </div>
-                    <input type="text " autofocus="on " class="form-control " name="medical " placeholder="Medical Info ">
+                    <input type="text" autofocus="on" class="form-control" name="medical" placeholder="Medications">
 
-                    <div class="spacing "></div>
+                    <div class="input-group form-group">
+                        <div class="input-group-prepend"></div>
+                    </div>
+                    <input type="text" autofocus="on" class="form-control" name="allergies" placeholder="Allergies">
+
+                    <div class="input-group form-group">
+                        <div class="input-group-prepend"></div>
+                    </div>
+                    <input type="text" autofocus="on" class="form-control" name="immunizations" placeholder="Immunizations">
+
+                    <div class="spacing"></div>
                     <!--Register button-->
-                    <div class="form-group " style="margin-top: 20px; ">
-                        <input type="submit " value="Register " class="btn float-right btn-md btn-outline-primary ">
+                    <div class="form-group" style="margin-top: 20px;">
+                        <input type="submit" value="Register" class="btn float-right btn-md btn-outline-primary">
                     </div>
                 </form>
             </div>
             <!--Navigate back to login page-->
-            <div class="card-footer ">
-                <div class="d-flex justify-content-center links ">
+            <div class="card-footer">
+                <div class="d-flex justify-content-center links">
                     <a href="/login ">Back to Login</a>
                 </div>
             </div>
