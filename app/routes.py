@@ -6,24 +6,51 @@ from flask_bootstrap import Bootstrap
 import sqlite3
 from datetime import datetime 
 import json
-from mailchimp_marketing import Client
+import mailchimp_marketing as MailchimpMarketing
+from mailchimp_marketing.api_client import ApiClientError
 
 # Initializing bootstrap
 bootstrap = Bootstrap(app)
 
-"""
+
 # Initializing mailchimp
 # NOTE - these values depend on the account - don't forget to change them if you move to a different one
-mailchimp = Client()
+mailchimp = MailchimpMarketing.Client()
 mailchimp.set_config({
     "api_key": "FIXME",
     "server" : "us17"
 })
 
-# test that mailchimp is working correctly - should print "everything's chimpy!"
-response = mailchimp.ping.get()
-print(response)
-"""
+# Sets up main email list with every STUDENT
+# TODO - figure out why this crashes
+# see below for documentation
+# https://mailchimp.com/developer/guides/create-your-first-audience/
+body = {
+  "permission_reminder": "You signed up for updates on our website",
+  "email_type_option": False,
+  "campaign_defaults": {
+    "from_name": "Water Walkers",
+    "from_email": "FIXME",
+    "subject": "Mass Annoucement",
+    "language": "EN_US"
+  },
+  "name": "FIXME",
+  "contact": {
+    "company": "Water Walkers",
+    "address1": "FIXME",
+    "address2": "FIXME",
+    "city": "Nashville",
+    "state": "TN",
+    "zip": "FIXME",
+    "country": "US"
+  }
+}
+
+try:
+  response = mailchimp.lists.create_list(body)
+  print("Response: {}".format(response))
+except ApiClientError as error:
+  print("An exception occurred: {}".format(error.text))
 
 @app.route('/')
 def index():
