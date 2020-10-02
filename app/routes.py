@@ -207,15 +207,13 @@ def add_event():
         start = request.form.get("start")
         end = request.form.get("end")
         address = request.form.get("address")
+        waiver = request.form.get("waiver")
 
-        # IMPORTANT - for now this needs to run locally on someone's machine. 
-        # remember to change this per your db's path!
         conn = sqlite3.connect('database/database.db')
         db = conn.cursor()
 
         # SQLite query to add username and password into database
-        db.execute("INSERT INTO EVENTS (event_name, event_descrip, start, end, address) VALUES (?, ?, ?, ?, ?)", (name, descrip, start, end, address))
-        #event_id = db.execute("SELECT event_id FROM EVENTS WHERE event_name=?", (name,))
+        db.execute("INSERT INTO EVENTS (event_name, event_descrip, start, end, address, waiver) VALUES (?, ?, ?, ?, ?, ?)", (name, descrip, start, end, address, waiver))
 
         conn.commit()
 
@@ -291,7 +289,6 @@ def signup_student():
         db = conn.cursor()
 
         # insert student and event data into database
-        # TODO - replace with INSERT OR IGNORE at some point
         db.execute("SELECT * FROM ATTENDEES WHERE event_id=? AND student_id=?", (index, USER_ID))
         data = db.fetchall()
 
