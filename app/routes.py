@@ -327,8 +327,6 @@ def Event1(index):
         grade = db.fetchone()
         attendees.append((fname[0], lname[0], grade[0]))
 
-    # TODO - pass in event description in this call - this can get selected from EVENTS table in DB
-    # TODO - pass in event details (location, contact, etc)
     return render_template('Event1.html', attendees=attendees, event=event)
 
 @app.route('/RegisterStaff', methods=['GET', 'POST'])
