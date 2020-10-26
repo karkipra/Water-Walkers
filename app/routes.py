@@ -312,7 +312,7 @@ def Event1(index):
     db.execute("SELECT * FROM EVENTS WHERE event_id=?", (index,))
     event = db.fetchone()
 
-    # select students attending a given event
+    # select students who have expressed interest (or if after the fact, actually attended) a given event
     db.execute("SELECT * FROM ATTENDEES WHERE event_id=?", (index,))
     data = db.fetchall()
 
@@ -327,9 +327,8 @@ def Event1(index):
         grade = db.fetchone()
         attendees.append((fname[0], lname[0], grade[0]))
 
-    # TODO - pass in event description in this call - this can get selected from EVENTS table in DB
-    # TODO - pass in event details (location, contact, etc)
-    return render_template('Event1.html', attendees=attendees, event=event)
+    # pass in user type in order to only show interested students to staff accounts
+    return render_template('Event1.html', attendees=attendees, event=event, user_type=USER_TYPE)
 
 @app.route('/RegisterStaff', methods=['GET', 'POST'])
 def RegisterStaff():
