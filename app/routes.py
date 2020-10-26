@@ -240,13 +240,33 @@ def take_attendance(index):
     conn = sqlite3.connect('database/database.db')
     db = conn.cursor()
 
-    # get list of all students
-    db.execute("SELECT * FROM STUDENTS")
-    students = db.fetchall()
+    # select students who have expressed interest (or if after the fact, actually attended) a given event
+    db.execute("SELECT * FROM ATTENDEES WHERE event_id=?", (index,))
+    data = db.fetchall()
+
+    # if no one is interested, generate all students by default
+    if len(data) == 0:
+        db.execute("SELECT * FROM STUDENTS")
+        attendees = db.fetchall()
+    else:
+        attendees = []
+        for row in data:
+            student_id = row[1]
+
+            db.execute("SELECT firstname FROM STUDENTS WHERE user_id=?", (student_id,))
+            fname = db.fetchone()
+
+            db.execute("SELECT lastname FROM STUDENTS WHERE user_id=?", (student_id,))
+            lname = db.fetchone()
+
+            db.execute("SELECT grade FROM STUDENTS WHERE user_id=?", (student_id,))
+            grade = db.fetchone()
+
+            attendees.append((student_id, fname[0], lname[0], grade[0]))
 
     # sort students by last name
     # students is a list of tuples (each student is a tuple)
-    students.sort(key = lambda x: x[2])
+    attendees.sort(key = lambda x: x[2])
 
     if request.method == 'POST':
         # check to see if on time or late
@@ -279,8 +299,7 @@ def take_attendance(index):
 
         return redirect("/")
     else:
-        # TODO - sort by name
-        return render_template('attendance.html', students=students, index=index)
+        return render_template('attendance.html', students=attendees, index=index)
         
 # TODO - this could be modified to add students to a seperate db table rather than attendees
 @app.route('/signup_student', methods=['GET', 'POST'])
@@ -302,7 +321,6 @@ def signup_student():
 
         return redirect("/")
 
-# TODO - allow only certain users (staff) to see list of students attending
 @app.route('/Event1/<index>')
 def Event1(index):
     conn = sqlite3.connect('database/database.db')
@@ -319,12 +337,16 @@ def Event1(index):
     attendees = []
     for row in data:
         student_id = row[1]
+
         db.execute("SELECT firstname FROM STUDENTS WHERE user_id=?", (student_id,))
         fname = db.fetchone()
+
         db.execute("SELECT lastname FROM STUDENTS WHERE user_id=?", (student_id,))
         lname = db.fetchone()
+
         db.execute("SELECT grade FROM STUDENTS WHERE user_id=?", (student_id,))
         grade = db.fetchone()
+
         attendees.append((fname[0], lname[0], grade[0]))
 
     # pass in user type in order to only show interested students to staff accounts
