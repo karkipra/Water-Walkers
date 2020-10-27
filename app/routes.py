@@ -214,7 +214,8 @@ def add_event():
         db = conn.cursor()
 
         # SQLite query to add username and password into database
-        db.execute("INSERT INTO EVENTS (event_name, event_descrip, start, end, address) VALUES (?, ?, ?, ?, ?)", (name, descrip, start, end, address))
+        # events that haven't started are represented with a 0 - after the first attendance pass this is changed to 1
+        db.execute("INSERT INTO EVENTS (event_name, event_descrip, start, end, address, started) VALUES (?, ?, ?, ?, ?, ?)", (name, descrip, start, end, address, 0))
         #event_id = db.execute("SELECT event_id FROM EVENTS WHERE event_name=?", (name,))
 
         conn.commit()
