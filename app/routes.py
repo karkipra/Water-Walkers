@@ -244,6 +244,9 @@ def take_attendance(index):
     # select students who have expressed interest (or if after the fact, actually attended) a given event
     db.execute("SELECT * FROM ATTENDEES WHERE event_id=?", (index,))
     data = db.fetchall()
+    
+    db.execute("SELECT * FROM EVENTS WHERE event_id=?", (index,))
+    event_data = db.fetchall()
 
     # if no one is interested, generate all students by default
     if len(data) == 0:
@@ -300,7 +303,8 @@ def take_attendance(index):
 
         return redirect("/")
     else:
-        return render_template('attendance.html', students=attendees, index=index)
+        started = event_data[0][6]
+        return render_template('attendance.html', students=attendees, index=index, started=started)
         
 # TODO - this could be modified to add students to a seperate db table rather than attendees
 @app.route('/signup_student', methods=['GET', 'POST'])
