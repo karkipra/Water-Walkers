@@ -300,7 +300,7 @@ def take_attendance(index):
         # update attendance details if first pass has already been made
         else:
             # check to see if on time or late
-            for student in students:
+            for student in attendees:
                 attendance_data = [ request.form.get(str(student[0]) + "o"),
                                     request.form.get(str(student[0]) + "l"),
                                     request.form.get(str(student[0]) + "le"),
