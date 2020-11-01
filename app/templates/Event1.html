@@ -26,6 +26,8 @@
 
     </div>
     <br>
+    
+    {% if user_type == 2 %}
     <div class="second_div">
         <h1>Interested Students</h1>
         <table class="table table-hover table-striped" style="table-layout: auto; width: 100%;">
@@ -52,5 +54,6 @@
             </tbody>
         </table>
     </div>
+    {% endif %}
 </body>
 {% endblock %}

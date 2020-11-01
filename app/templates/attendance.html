@@ -14,11 +14,14 @@
                         <div class="col-12 col-lg-6 col-md-6 text-center">
                             <img class="profile-pic" src="http://placehold.it/80">
                             <br>
+                            <!-- FIXME WHAT DO THESE DO? HOW DO WE GET TO STUDENT PROFILES? -->
                             <button class="btn btn-sm btn-success" style="width: 60px;">250</button>
                             <button class="btn btn-sm btn-primary" style="width: 60px;">Profile</button>
+                            
                             <h4 class="mb-0 text-truncated">{{student[1] + " " + student[2]}}</h4>
-                            <p>Grade: 8</p>
+                            <p>Grade: {{student[3]}}</p>
                         </div>
+                        {% if started == 1 %}
                         <div class="col-12 col-lg-6 col-md-6">
                             <span style="padding-right: 10px"><input type="checkbox" name={{student[0]}}o> On Time</span>
                             <span style="padding-right: 10px"><input type="checkbox" name={{student[0]}}l> Late</span>
@@ -26,6 +29,12 @@
                             <span style="padding-right: 10px"><input type="checkbox" name={{student[0]}}b> Behavioral Issues</span>
                             </ul>
                         </div>
+                        {% else %}
+                        <div class="col-12 col-lg-6 col-md-6 text-center">
+                            <input style="vertical-align: middle;" type="checkbox" id="present" name={{student[0]}}p>
+                            <label style="vertical-align: middle; display: inline;"for="present">Present</label>
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>

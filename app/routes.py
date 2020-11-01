@@ -294,7 +294,8 @@ def add_event():
         db = conn.cursor()
 
         # SQLite query to add username and password into database
-        db.execute("INSERT INTO EVENTS (event_name, event_descrip, start, end, address) VALUES (?, ?, ?, ?, ?)", (name, descrip, start, end, address))
+        # events that haven't started are represented with a 0 - after the first attendance pass this is changed to 1
+        db.execute("INSERT INTO EVENTS (event_name, event_descrip, start, end, address, started) VALUES (?, ?, ?, ?, ?, ?)", (name, descrip, start, end, address, 0))
         #event_id = db.execute("SELECT event_id FROM EVENTS WHERE event_name=?", (name,))
 
         conn.commit()
@@ -320,47 +321,98 @@ def take_attendance(index):
     conn = sqlite3.connect('database/database.db')
     db = conn.cursor()
 
-    # get list of all students
-    db.execute("SELECT * FROM STUDENTS")
-    students = db.fetchall()
+    # select students who have expressed interest (or if after the fact, actually attended) a given event
+    db.execute("SELECT * FROM ATTENDEES WHERE event_id=?", (index,))
+    data = db.fetchall()
+    
+    # if no one is interested, generate all students by default
+    if len(data) == 0:
+        db.execute("SELECT * FROM STUDENTS")
+        attendees = db.fetchall()
+    else:
+        attendees = []
+        for row in data:
+            student_id = row[1]
+
+            db.execute("SELECT firstname FROM STUDENTS WHERE user_id=?", (student_id,))
+            fname = db.fetchone()
+
+            db.execute("SELECT lastname FROM STUDENTS WHERE user_id=?", (student_id,))
+            lname = db.fetchone()
+
+            db.execute("SELECT grade FROM STUDENTS WHERE user_id=?", (student_id,))
+            grade = db.fetchone()
+
+            attendees.append((student_id, fname[0], lname[0], grade[0]))
 
     # sort students by last name
     # students is a list of tuples (each student is a tuple)
-    students.sort(key = lambda x: x[2])
+    attendees.sort(key = lambda x: x[2])
 
     if request.method == 'POST':
-        # check to see if on time or late
-        for student in students:
-            attendance_data = [ request.form.get(str(student[0]) + "o"),
-                                request.form.get(str(student[0]) + "l"),
-                                request.form.get(str(student[0]) + "le"),
-                                request.form.get(str(student[0]) + "b"), ]
+        db.execute("SELECT * FROM EVENTS WHERE event_id=?", (index,))
+        event_data = db.fetchall()
 
-            # since sqlite can't handle booleans, we have to convert them to integers (0=T, 1=F)
-            # the default value is a student isn't present at the event
-            db_values = [1, 1, 1, 1]
+        # first pass just made, filtering out no shows
+        if event_data[0][6] == 0:
+            # first, update the event as started so this block doesn't fire again
+            db.execute("UPDATE EVENTS SET started=? WHERE event_id=?", (1, index,))
+            conn.commit()
 
-            for i in range(len(attendance_data)):
-                if attendance_data[i]:
-                    db_values[i] -= 1
+            # next, remove no shows from database OR in the case if no interested students, add to database
+            for student in attendees:
+                # check if student is present
+                present = request.form.get(str(student[0]) + "p")
 
-            # only insert students who have at least one checkmark in some field
-            if sum(db_values) != 4:
-                db.execute("SELECT * FROM ATTENDEES WHERE event_id=? AND student_id=?", (index, student[0]))
-                data = db.fetchall()
+                # check if student was initially interested in the event
+                db.execute("SELECT * FROM ATTENDEES WHERE event_id=? AND student_id=?", (index, student[0],))
+                initially_interested = len(db.fetchall()) > 0
 
-                # check to see if it's an update for attendance (eg. leaving early) or a new record
-                if len(data) == 0:
-                    db.execute("INSERT INTO ATTENDEES (event_id, student_id, late, left_early, behavior_issue) VALUES (?,?,?,?,?)", (index, student[0], db_values[1], db_values[2], db_values[3]))
-                else:
-                    db.execute("UPDATE ATTENDEES SET late = ?, left_early = ?, behavior_issue = ? WHERE event_id = ? and student_id = ?", (db_values[1], db_values[2], db_values[3], index, student[0]))
+                # in case of no show, remove from database
+                if not present and initially_interested:
+                    db.execute("DELETE FROM ATTENDEES WHERE event_id=? AND student_id=?", (index, student[0],))
+                # in case of random show up for event with no interest, insert into database
+                elif present and not initially_interested:
+                    db.execute("INSERT INTO ATTENDEES (event_id, student_id, late, left_early, behavior_issue) VALUES (?,?,?,?,?)", (index, student[0], 0, 0, 0,))
 
                 conn.commit()
 
+        # update attendance details if first pass has already been made
+        else:
+            # check to see if on time or late
+            for student in attendees:
+                attendance_data = [ request.form.get(str(student[0]) + "o"),
+                                    request.form.get(str(student[0]) + "l"),
+                                    request.form.get(str(student[0]) + "le"),
+                                    request.form.get(str(student[0]) + "b"), ]
+
+                # since sqlite can't handle booleans, we have to convert them to integers (0=T, 1=F)
+                # the default value is a student isn't present at the event
+                db_values = [1, 1, 1, 1]
+
+                for i in range(len(attendance_data)):
+                    if attendance_data[i]:
+                        db_values[i] -= 1
+
+                # only insert students who have at least one checkmark in some field
+                if sum(db_values) != 4:
+                    db.execute("SELECT * FROM ATTENDEES WHERE event_id=? AND student_id=?", (index, student[0]))
+                    data = db.fetchall()
+
+                    # check to see if it's an update for attendance (eg. leaving early) or a new record
+                    if len(data) == 0:
+                        db.execute("INSERT INTO ATTENDEES (event_id, student_id, late, left_early, behavior_issue) VALUES (?,?,?,?,?)", (index, student[0], db_values[1], db_values[2], db_values[3]))
+                    else:
+                        db.execute("UPDATE ATTENDEES SET late = ?, left_early = ?, behavior_issue = ? WHERE event_id = ? and student_id = ?", (db_values[1], db_values[2], db_values[3], index, student[0]))
+
+                    conn.commit()
+
         return redirect("/")
     else:
-        # TODO - sort by name
-        return render_template('attendance.html', students=students, index=index)
+        db.execute("SELECT * FROM EVENTS WHERE event_id=?", (index,))
+        event_data = db.fetchall()
+        started = event_data[0][6]
+        return render_template('attendance.html', students=attendees, index=index, started=started)
         
 # TODO - this could be modified to add students to a seperate db table rather than attendees
 @app.route('/signup_student', methods=['GET', 'POST'])
@@ -382,7 +434,6 @@ def signup_student():
 
         return redirect("/")
 
-# TODO - allow only certain users (staff) to see list of students attending
 @app.route('/Event1/<index>')
 def Event1(index):
     conn = sqlite3.connect('database/database.db')
@@ -392,24 +443,27 @@ def Event1(index):
     db.execute("SELECT * FROM EVENTS WHERE event_id=?", (index,))
     event = db.fetchone()
 
-    # select students attending a given event
+    # select students who have expressed interest (or if after the fact, actually attended) a given event
     db.execute("SELECT * FROM ATTENDEES WHERE event_id=?", (index,))
     data = db.fetchall()
 
     attendees = []
     for row in data:
         student_id = row[1]
+
         db.execute("SELECT firstname FROM STUDENTS WHERE user_id=?", (student_id,))
         fname = db.fetchone()
+
         db.execute("SELECT lastname FROM STUDENTS WHERE user_id=?", (student_id,))
         lname = db.fetchone()
+
         db.execute("SELECT grade FROM STUDENTS WHERE user_id=?", (student_id,))
         grade = db.fetchone()
+
         attendees.append((fname[0], lname[0], grade[0]))
 
-    # TODO - pass in event description in this call - this can get selected from EVENTS table in DB
-    # TODO - pass in event details (location, contact, etc)
-    return render_template('Event1.html', attendees=attendees, event=event)
+    # pass in user type in order to only show interested students to staff accounts
+    return render_template('Event1.html', attendees=attendees, event=event, user_type=USER_TYPE)
 
 @app.route('/RegisterStaff', methods=['GET', 'POST'])
 def RegisterStaff():

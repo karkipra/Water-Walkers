@@ -20,9 +20,15 @@
                     <button type="submit" name="event_id" onclick="return confirm('Are you sure you want to delete this event?')" value="{{ event[0] }}" class="btn btn-sm btn-outline-secondary">Delete Event</button>
                 </form>
                 <br>
-                <form action="{{ url_for('take_attendance', index=event[0]) }}" method="GET" class="mt-auto text-right" style="margin-top: 0!important">
-                    <button type="submit" name="event_id" value="{{ event[0] }}" class="btn btn-block btn-lg btn-outline-success" href=>Take Attendance</button>
-                </form>
+                    {% if event[6] == 0 %}
+                    <form action="{{ url_for('take_attendance', index=event[0]) }}" method="GET" class="mt-auto text-right" style="margin-top: 0!important">
+                        <button type="submit" name="event_id" value="{{ event[0] }}" class="btn btn-block btn-lg btn-outline-success" href=>Take Attendance</button>
+                    </form>
+                    {% else %}
+                    <form action="{{ url_for('take_attendance', index=event[0]) }}" method="GET" class="mt-auto text-right" style="margin-top: 0!important">
+                        <button type="submit" name="event_id" value="{{ event[0] }}" class="btn btn-block btn-lg btn-outline-success" href=>Update Attendance</button>
+                    </form>
+                    {% endif %}
                 {% endif %}
             </p>
         </div>
