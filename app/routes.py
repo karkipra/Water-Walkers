@@ -154,8 +154,6 @@ def register():
 def calendar():
     return render_template('calendar.html')
 
-# TODO - add personalized calendar for each student
-# TODO - allow users to change some info
 # TODO - take photo of user
 @app.route('/profile')
 def profile():
@@ -163,12 +161,94 @@ def profile():
     conn = sqlite3.connect('database/database.db')
     db = conn.cursor()
 
-    # SQLite query to add username and password into database
-    db.execute("SELECT * FROM MAIN where user_id=?", (USER_ID,)) # user_id should be logged in user's id
+    #show the past events and profile page for students
+    if USER_TYPE == 1:
+        db.execute("SELECT * FROM STUDENTS where user_id=?", (USER_ID,))
+        student = db.fetchone()
 
-    student = db.fetchone()
+        db.execute("SELECT * FROM ATTENDEES where student_id=?", (USER_ID,))
+        pastEvents = db.fetchall()
+
+        event_info = []
+        for event in pastEvents: 
+            db.execute("SELECT * FROM EVENTS where event_id=?", (event[0],))
+            event_info.append(db.fetchone())
+
+        events = db.execute("SELECT * FROM EVENTS")
+        events = db.fetchall()
+
+        return render_template('profile.html', student=student, pastEvents=pastEvents, event_info=event_info, events=events)
     
-    return render_template('profile.html', student=student)
+    #directs to profile page for the staff
+    db.execute("SELECT * FROM STAFF where user_id=?", (USER_ID,))
+    staff = db.fetchone()
+    return render_template('prof_staff.html', staff=staff)
+
+@app.route('/edit_student', methods=['GET', 'POST'])
+def edit_student():
+    conn = sqlite3.connect('database/database.db')
+    db = conn.cursor()
+
+    db.execute("SELECT * FROM STUDENTS where user_id=?", (USER_ID,))
+    student = db.fetchone()
+
+    if request.method =="GET":
+        return render_template('edit_student.html', student = student)
+    
+    #gets all info after user edits the form
+    fname = request.form.get("fname")
+    lname = request.form.get("lname")
+    age = request.form.get("age")
+    grade = request.form.get("grade")
+    dob = request.form.get("dob")
+    parent1 = request.form.get("parent1")
+    parent2 = request.form.get("parent2")
+    emergency = request.form.get("econtact") 
+    allergies = request.form.get("allergies")
+    meds = request.form.get("medications")
+    parent1phone = request.form.get("parent1phone")
+    parent2phone = request.form.get("parent2phone")
+    emergency_phone = request.form.get("econtactphone")
+    gender = request.form.get("gender")
+    school = request.form.get("school")
+    ethnicity = request.form.get("ethnicity")
+    immunizations = request.form.get("immunization")   
+    notes = request.form.get("notes")
+    
+    student_info = (fname, lname, age, grade, dob, parent1, parent2, emergency, allergies, meds, parent1phone, parent2phone, emergency_phone, gender, school, ethnicity, immunizations, notes, student[0])
+
+    db.execute("UPDATE STUDENTS SET firstname = ?, lastname = ?, age = ?, grade = ?, dob = ?, parent1 = ?, parent2 = ?, econtact = ?, diet = ?, meds = ?, parent1phone = ?, parent2phone = ?, emergencyphone = ?, gender = ?, school = ?, ethnicity = ?, immunizations = ?, notes = ? WHERE user_id = ?", (student_info))
+    conn.commit()
+
+    #get the new value for student before passing it
+    db.execute("SELECT * FROM STUDENTS where user_id=?", (student[0],))
+    student = db.fetchone()
+    return render_template('edit_student.html', student=student)
+
+@app.route('/edit_staff', methods=['GET', 'POST'])
+def edit_staff():
+    conn = sqlite3.connect('database/database.db')
+    db = conn.cursor()
+
+    db.execute("SELECT * FROM STAFF where user_id=?", (USER_ID,))
+    staff = db.fetchone()
+
+    if request.method =="GET":
+        return render_template('prof_staff.html', staff = staff)
+   
+    fname = request.form.get("fname")
+    lname = request.form.get("lname")
+    emergency = request.form.get("econtact")
+    meds = request.form.get("medications")
+    gender = request.form.get("gender")
+    allergies = request.form.get("allergies")
+    immunizations = request.form.get("immunization")
+    
+    db.execute("UPDATE STAFF SET firstname = ?, lastname = ?, econtact = ?, meds = ?, gender = ?, allergies = ?, immunizations = ? WHERE user_id = ?", (fname, lname, emergency, meds, gender, allergies, immunizations, staff[0]))
+    conn.commit()
+    db.execute("SELECT * FROM STAFF where user_id=?", (staff[0],))
+    staff = db.fetchone()
+    return render_template('prof_staff.html', staff=staff)
 
 @app.route('/data')
 def return_data():
