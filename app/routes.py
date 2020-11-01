@@ -166,7 +166,7 @@ def profile(index):
         index = USER_ID
 
     #show the past events and profile page for students
-    if USER_TYPE == 1:
+    if index != 0 or USER_TYPE == 1:
         db.execute("SELECT * FROM STUDENTS where user_id=?", (index,))
         student = db.fetchone()
 
