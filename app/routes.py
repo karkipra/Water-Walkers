@@ -155,18 +155,30 @@ def calendar():
     return render_template('calendar.html')
 
 # TODO - take photo of user
-@app.route('/profile')
-def profile():
+@app.route('/profile/<index>')
+def profile(index):
 
     conn = sqlite3.connect('database/database.db')
     db = conn.cursor()
 
+    #directs to profile page for the staff
+    if index == '0' and USER_TYPE == 2:
+        print("Made it!")
+        index = USER_ID
+        db.execute("SELECT * FROM STAFF where user_id=?", (index,))
+        staff = db.fetchone()
+        return render_template('prof_staff.html', staff=staff)
+
     #show the past events and profile page for students
-    if USER_TYPE == 1:
-        db.execute("SELECT * FROM STUDENTS where user_id=?", (USER_ID,))
+    else:
+        # prevent students from accessing other student profiles
+        if USER_TYPE == 1:
+            index = USER_ID
+
+        db.execute("SELECT * FROM STUDENTS where user_id=?", (index,))
         student = db.fetchone()
 
-        db.execute("SELECT * FROM ATTENDEES where student_id=?", (USER_ID,))
+        db.execute("SELECT * FROM ATTENDEES where student_id=?", (index,))
         pastEvents = db.fetchall()
 
         event_info = []
@@ -178,11 +190,6 @@ def profile():
         events = db.fetchall()
 
         return render_template('profile.html', student=student, pastEvents=pastEvents, event_info=event_info, events=events)
-    
-    #directs to profile page for the staff
-    db.execute("SELECT * FROM STAFF where user_id=?", (USER_ID,))
-    staff = db.fetchone()
-    return render_template('prof_staff.html', staff=staff)
 
 @app.route('/edit_student', methods=['GET', 'POST'])
 def edit_student():

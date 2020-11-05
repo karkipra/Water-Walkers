@@ -14,10 +14,7 @@
                         <div class="col-12 col-lg-6 col-md-6 text-center">
                             <img class="profile-pic" src="http://placehold.it/80">
                             <br>
-                            <!-- FIXME WHAT DO THESE DO? HOW DO WE GET TO STUDENT PROFILES? -->
-                            <button class="btn btn-sm btn-success" style="width: 60px;">250</button>
-                            <button class="btn btn-sm btn-primary" style="width: 60px;">Profile</button>
-                            
+                            <a href="{{ url_for('profile', index = student[0]) }}">Profile</a>
                             <h4 class="mb-0 text-truncated">{{student[1] + " " + student[2]}}</h4>
                             <p>Grade: {{student[3]}}</p>
                         </div>
