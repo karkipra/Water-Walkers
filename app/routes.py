@@ -190,9 +190,27 @@ def profile(index):
         events = db.fetchall()
 
         # analyze attendance data for % no show and behavioral issues
+        # start with % no show
+        db.execute("SELECT * FROM NOSHOWS WHERE student_id=?", (index,))
+        noShows = db.fetchall()
 
+        # catch edge case where student hasn't attended any events
+        if len(pastEvents) == 0 and len(noShows) == 0:
+            noShowPercentage = 0
+        else:
+            # need to account for rows removed from attendees table in denominator by readding no show length
+            noShowPercentage = round(100 * len(noShows) / (len(noShows) + len(pastEvents)))
 
-        return render_template('profile.html', student=student, pastEvents=pastEvents, event_info=event_info, events=events)
+        # get % behavioral issues
+        db.execute("SELECT * FROM ATTENDEES WHERE student_id=? and behavior_issue=?",(index, 0))
+        behavioralIssues = db.fetchall()
+
+        if len(pastEvents) == 0:
+            behavioralPercentage = 0
+        else:
+            behavioralPercentage = round(100 * len(behavioralIssues) / len(pastEvents))
+
+        return render_template('profile.html', student=student, pastEvents=pastEvents, event_info=event_info, events=events, noShow=noShowPercentage, behavior=behavioralPercentage)
 
 @app.route('/edit_student', methods=['GET', 'POST'])
 def edit_student():
