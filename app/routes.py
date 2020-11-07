@@ -174,6 +174,7 @@ def profile(index):
         if USER_TYPE == 1:
             index = USER_ID
 
+        # get student and events they've attended
         db.execute("SELECT * FROM STUDENTS where user_id=?", (index,))
         student = db.fetchone()
 
@@ -187,6 +188,9 @@ def profile(index):
 
         events = db.execute("SELECT * FROM EVENTS")
         events = db.fetchall()
+
+        # analyze attendance data for % no show and behavioral issues
+
 
         return render_template('profile.html', student=student, pastEvents=pastEvents, event_info=event_info, events=events)
 
@@ -377,9 +381,10 @@ def take_attendance(index):
                 # in case of no show, remove from database
                 if not present and initially_interested:
                     db.execute("DELETE FROM ATTENDEES WHERE event_id=? AND student_id=?", (index, student[0],))
+                    db.execute("INSERT INTO NOSHOWS (student_id, event_id) VALUES (?,?)", (student[0], index))
                 # in case of random show up for event with no interest, insert into database
                 elif present and not initially_interested:
-                    db.execute("INSERT INTO ATTENDEES (event_id, student_id, late, left_early, behavior_issue) VALUES (?,?,?,?,?)", (index, student[0], 0, 0, 0,))
+                    db.execute("INSERT INTO ATTENDEES (event_id, student_id, late, left_early, behavior_issue) VALUES (?,?,?,?,?)", (index, student[0], 1, 1, 1,))
 
                 conn.commit()
 
