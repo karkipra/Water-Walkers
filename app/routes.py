@@ -163,7 +163,6 @@ def profile(index):
 
     #directs to profile page for the staff
     if index == '0' and USER_TYPE == 2:
-        print("Made it!")
         index = USER_ID
         db.execute("SELECT * FROM STAFF where user_id=?", (index,))
         staff = db.fetchone()
