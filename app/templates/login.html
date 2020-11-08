@@ -1,58 +1,57 @@
 {% extends "base.html" %} {% block head %}
-<title>Login Page</title>
+<title>Login</title>
+<link rel="stylesheet" href="static/styles/register.css">
+
 {% endblock %} {% block app_content %}
-<div class="container" style="margin-top: 100px;">
-    <div class="d-flex justify-content-center h-100">
-        <div class="card" style="width: 300px;">
-
-            <div class="card-header">
-                <h3>Login</h3>
-                <div class="d-flex justify-content-end social_icon">
-                    <span><i class="fab fa-facebook-square"></i></span>
-                    <span><i class="fab fa-google-plus-square"></i></span>
-                    <span><i class="fab fa-twitter-square"></i></span>
-                </div>
-            </div>
-
-            <div class="card-body">
-                <form action="/login" method="POST">
-                    <div class="input-group form-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fas fa-user"></i></span>
+<div class="col-md-5 main-section">
+    <div class="modal-content">
+        <div>
+            <form action="/login" method="POST">
+                <fieldset class="form-group">
+                    <legend class="border-bottom mb-4">
+                        <p class="loginTitle">Login</p>
+                    </legend>
+                    <div class="form-group">
+                        <label class="form-control-label">Email Address</label>
+                        <div class="required">
+                            <label>*</label>
                         </div>
-                        <input type="text" autofocus="on" class="form-control" name="email" placeholder="Email">
-
-                    </div>
-                    <div class="input-group form-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fas fa-key"></i></span>
-                        </div>
-                        <input type="password" class="form-control" name="password" placeholder="Password">
-                    </div>
-                    <div class="row align-items-center remember">
-                        <input type="checkbox" style="margin-right: 5px; margin-left: 15px;">Remember Me
+                        <input type="text" autofocus="on" class="form-control" name="email" required>
                     </div>
                     <div class="form-group">
-                        <input type="submit" value="Login" class="btn float-right btn-md btn-outline-primary">
+                        <label class="form-control-label">Password</label>
+                        <div class="required">
+                            <label>*</label>
+                        </div>
+                        <input type="password" class="form-control" name="password" required>
                     </div>
-                </form>
-            </div>
-
-            <div class="card-footer">
+                    {% if error %}
+                    <p class=error><strong>Error:</strong> {{ error }}
+                        {% endif %}
+                </fieldset>
+                <div class="form-group" style="margin-top: 20px;">
+                    <input type="submit" value="Login" class="btn float-right btn-md btn-outline-primary">
+                </div>
+                <br> <br>
+            </form>
+        </div>
+        <div class="border-top pt-3">
+            <small class="text-muted">
                 <div class="d-flex justify-content-center links">
                     Don't have an account?
                 </div>
                 <div class="d-flex justify-content-center">
-                    <a href="/register">Register as a student</a>
+                    <a href="/register">Register Students</a>
                 </div>
                 <div class="d-flex justify-content-center">
-                    <a href="/RegisterStaff">Register as staff</a>
+                    <a href="/RegisterStaff">Register Staff</a>
                 </div>
                 <div class="d-flex justify-content-center">
                     <a href="/forgot_pwd">Forgot your password?</a>
                 </div>
-            </div>
+            </small>
         </div>
+        <br>
     </div>
 </div>
 {% endblock %}
