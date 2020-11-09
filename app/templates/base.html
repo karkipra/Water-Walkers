@@ -2,7 +2,7 @@
 
 {% block head %}
     <title>Water Walkers</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, maximum-scale=1">
 {% endblock %}
 
 
@@ -29,12 +29,12 @@
               </li>
             {% endif %}-->
             <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('calendar') }}">Calendar View</a>
-              </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('profile', index = 0) }}">Profile</a>
+                <a class="nav-link" href="{{ url_for('calendar') }}">View Events</a>
               </li>
             {% if user_type == 1 or user_type == 2 %}
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('profile', index = 0) }}">Profile</a>
+            </li>
             <li class="nav-item">
                   <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
               </li>

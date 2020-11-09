@@ -1,6 +1,6 @@
 from app import app
 
-from flask import Flask, render_template, request, session, redirect, url_for
+from flask import Flask, render_template, request, session, redirect, url_for, flash
 from flask_bootstrap import Bootstrap
 #from flask.ext.sqlalchemy import SQLAlchemy
 import sqlite3
@@ -72,10 +72,10 @@ def login():
         db.execute("SELECT * FROM MAIN WHERE username=? AND password=?", (username, password))
         data = db.fetchall()
         conn.commit() # is this line needed? not editing anything in db, just looking
-
+        error = None
         if len(data) != 1:
-            # TODO - add way for user to see that they've added in the wrong info
-            return redirect("/login")
+            error = 'Invalid credentials'
+            return render_template('login.html', error=error)
         else:
             LOGGED_IN = True
             USER_ID = data[0][0]
@@ -548,4 +548,3 @@ def forgot_pwd():
 LOGGED_IN = False
 USER_ID = None 
 USER_TYPE = 0 
-

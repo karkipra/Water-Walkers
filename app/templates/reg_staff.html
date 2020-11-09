@@ -1,84 +1,103 @@
 {% extends "base.html" %} {% block head %}
 <title>Register Staff</title>
+<link rel="stylesheet" href="static/styles/register.css">
 {% endblock %}
 
-<div class="container">
-    {% block app_content %}
-    <div class="d-flex justify-content-center h-100" style="margin-top: 20px;">
-        <div class="card">
-            <div class="card-header" style=" width: 400px;">
-                <h3>Register Staff Members</h3>
-            </div>
-
-            <div class="card-body">
-                <form action="/RegisterStaff" method="POST">
-                    <div class="input-group form-group">
-                        <div class="input-group-prepend"></div>
+{% block app_content %}
+<div class="col-md-7 main-section">
+    <div class="modal-content">
+        <div>
+            <form action="/register" method="POST">
+                <fieldset class="form-group">
+                    <legend class="border-bottom mb-4">
+                        <p class="loginTitle">Register Staff Members</p>
+                    </legend>
+                    <div class="form-group">
+                        <label class="form-control-label">First Name</label>
+                        <div class="required">
+                            <label>*</label>
+                        </div>
+                        <input type="text" autofocus="on" class="form-control" name="fname" required>
                     </div>
-                    <input type="text" autofocus="on" class="form-control" name="fname" placeholder="First Name">
-
-                    <div class="input-group form-group">
-                        <div class="input-group-prepend"></div>
+                    <div class="form-group">
+                        <label class="form-control-label">Last Name</label>
+                        <div class="required">
+                            <label>*</label>
+                        </div>
+                        <input type="text" autofocus="on" class="form-control" name="lname" required>
                     </div>
-                    <input type="text" autofocus="on" class="form-control" name="lname" placeholder="Last Name">
-
-                    <div class="input-group form-group">
-                        <div class="input-group-prepend"></div>
+                    <div class="form-group">
+                        <label class="form-control-label">Email Address</label>
+                        <div class="required">
+                            <label>*</label>
+                        </div>
+                        <input type="text" autofocus="on" class="form-control" name="email" required>
                     </div>
-                    <input type="text" autofocus="on" class="form-control" name="gender" placeholder="Gender">
-
-                    <!--Input email-->
-                    <div class="input-group form-group">
-                        <div class="input-group-prepend"></div>
+                    <div class="form-group">
+                        <label class="form-control-label">Password</label>
+                        <div class="required">
+                            <label>*</label>
+                        </div>
+                        <input type="password" class="form-control" name="password" required>
                     </div>
-                    <input type="text" autofocus="on" class="form-control" name="email" placeholder="Email Address">
 
-                    <!--Input password-->
-                    <div class="input-group form-group">
-                        <div class="input-group-prepend"></div>
+                    <div class="form-group">
+                        <label class="form-control-label">Confirm Password</label>
+                        <div class="required">
+                            <label>*</label>
+                        </div>
+                        <input type="password" class="form-control" name="passwordconfirm" required>
                     </div>
-                    <input type="password" class="form-control" name="password" placeholder="Password">
 
-                    <!--Input password confirmation-->
-                    <div class="input-group form-group">
-                        <div class="input-group-prepend"></div>
-                    </div>
-                    <input type="password" class="form-control" name="passwordconfirm" placeholder="Enter Your Password Again To Confirm">
 
-                    <div class="input-group form-group">
-                        <div class="input-group-prepend"></div>
+                    <div class="form-group">
+                        <label class="form-control-label">Emergency Contact Name, Phone Numbe</label>
+                        <input type="text" autofocus="on" class="form-control" name="contact">
                     </div>
-                    <input type="text" autofocus="on" class="form-control" name="contact" placeholder="Emergency Contact Name, Phone Number">
 
-                    <div class="input-group form-group">
-                        <div class="input-group-prepend"></div>
-                    </div>
-                    <input type="text" autofocus="on" class="form-control" name="medical" placeholder="Medications">
 
-                    <div class="input-group form-group">
-                        <div class="input-group-prepend"></div>
+                    <div class="form-group">
+                        <label class="form-control-label">Medications</label>
+                        <input type="text" autofocus="on" class="form-control" name="medical">
                     </div>
-                    <input type="text" autofocus="on" class="form-control" name="allergies" placeholder="Allergies">
 
-                    <div class="input-group form-group">
-                        <div class="input-group-prepend"></div>
-                    </div>
-                    <input type="text" autofocus="on" class="form-control" name="immunizations" placeholder="Immunizations">
 
-                    <div class="spacing"></div>
-                    <!--Register button-->
-                    <div class="form-group" style="margin-top: 20px;">
-                        <input type="submit" value="Register" class="btn float-right btn-md btn-outline-primary">
+                    <div class="form-group">
+                        <label class="form-control-label">Allergies</label>
+                        <input type="text" autofocus="on" class="form-control" name="allergies">
                     </div>
-                </form>
-            </div>
-            <!--Navigate back to login page-->
-            <div class="card-footer">
-                <div class="d-flex justify-content-center links">
-                    <a href="/login ">Back to Login</a>
+
+                    <div class="form-group">
+                        <label class="form-control-label">Staff immunizations</label> <br>
+                        <input type="checkbox" name="immunizations" id="immunizations" value="all done">
+                        <label>All done with immunizations?</label><br>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-control-label">Gender</label>
+                        <select style="width: 100%; height: 100%;" name="gender">
+                            <option style="font-size: 100px;">Male</option>
+                            <option>Female</option>
+                            <option>Other</option>
+                            <option>Prefer Not To State</option>
+                        </select>
+                    </div>
+
+                </fieldset>
+                <div class="form-group" style="margin-top: 20px;">
+                    <input type="submit" value="Register" class="btn float-right btn-md btn-outline-primary">
                 </div>
-            </div>
+                <br> <br>
+            </form>
 
         </div>
-        {% endblock %}
+        <div class="border-top pt-3">
+            <small class="text-muted">
+                Already Have An Account? <a class="ml-2" href="{{ url_for('login') }}">Login</a>
+            </small>
+        </div>
+        <br>
     </div>
+</div>
+
+{% endblock %}
