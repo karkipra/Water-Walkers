@@ -14,4 +14,6 @@ Session(app)
 # Initialize login
 # login = LoginManager(app)
 
+#from app import helpers
 from app import routes
+#from helpers import login_required

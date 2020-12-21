@@ -9,6 +9,8 @@ import json
 from mailchimp_marketing import Client
 from werkzeug.security import generate_password_hash, check_password_hash
 
+from app import helpers
+
 # Initializing bootstrap
 bootstrap = Bootstrap(app)
 
@@ -27,6 +29,7 @@ print(response)
 """
 
 @app.route('/')
+@helpers.login_required
 def index():
     if not LOGGED_IN:
         return redirect("/login")
@@ -554,15 +557,6 @@ def RegisterStaff():
 @app.route('/forgot_pwd')
 def forgot_pwd():
     return render_template('forgot_pwd.html')
-
-def login_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if session.get("user_id") is None:
-            return redirect(url_for('login', next=request.url))
-        return f(*args, **kwargs)
-    return decorated_function
-
 
 # TODO - replace this unsecure login mechanic
 LOGGED_IN = False
