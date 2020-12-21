@@ -7,6 +7,7 @@ import sqlite3
 from datetime import datetime 
 import json
 from mailchimp_marketing import Client
+from werkzeug.security import generate_password_hash, check_password_hash
 
 # Initializing bootstrap
 bootstrap = Bootstrap(app)
@@ -30,7 +31,7 @@ def index():
     if not LOGGED_IN:
         return redirect("/login")
 
-    # SQLite query to add username and password into database
+    # fetch basic user info
     conn = sqlite3.connect('database/database.db')
     db = conn.cursor()
     if USER_TYPE == 1:
@@ -69,11 +70,11 @@ def login():
         db = conn.cursor()
         
         # look for username and password in database
-        db.execute("SELECT * FROM MAIN WHERE username=? AND password=?", (username, password))
+        db.execute("SELECT * FROM MAIN WHERE username=?", (username,))
         data = db.fetchall()
         conn.commit() # is this line needed? not editing anything in db, just looking
         error = None
-        if len(data) != 1:
+        if not check_password_hash(data[0][3], password):
             error = 'Invalid credentials'
             return render_template('login.html', error=error)
         else:
@@ -97,11 +98,11 @@ def register():
         fname = request.form.get("fname")
         lname = request.form.get("lname")
 
-        password = request.form.get("password")
+        password = generate_password_hash(request.form.get("password"))
         confirm = request.form.get("passwordconfirm")
         
         # TODO - show users that password doesn't match
-        if password != confirm:
+        if not check_password_hash(password, confirm):
             return redirect("/register")
         
         age = request.form.get("age")
@@ -109,7 +110,7 @@ def register():
         dob = request.form.get("dob")
         email = request.form.get("email")
 
-        # NEW - not added to the html in this order
+        # NOTE this stuff was added later and is not added to the html in this order
         school = request.form.get("school")
         gender = request.form.get("gender")
         ethnicity = request.form.get("ethnicity")
@@ -123,7 +124,7 @@ def register():
         emergency_phone = request.form.get("econtactphone")
         
         allergies = request.form.get("allergies")
-        needs = request.form.get("needs")
+        needs = request.form.get("needs") # TODO - figure out if we need this ;)
         meds = request.form.get("medications")
         notes = request.form.get("notes")
         
@@ -503,11 +504,11 @@ def RegisterStaff():
         fname = request.form.get("fname")
         lname = request.form.get("lname")
         
-        password = request.form.get("password")
+        password = generate_password_hash(request.form.get("password"))
         confirm = request.form.get("passwordconfirm")
 
         # TODO - show users that password doesn't match
-        if password != confirm:
+        if not check_password_hash(password, confirm):
             return redirect("/RegisterStaff")
         
         emergency = request.form.get("contact")
