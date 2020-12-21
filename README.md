@@ -44,13 +44,12 @@ $ flask run
 ```
 
 ## Requirements
-* [Python](https://www.python.org/)
-* [Flask](https://flask.palletsprojects.com/en/1.1.x/)
-* [Flask Bootstrap](https://pythonhosted.org/Flask-Bootstrap/)
-* [SQLite3](https://www.sqlite.org/index.html)
+See requirements.txt
 
 ## Future Updates
 
 - Add more functionality with volunteers, parents
 - Optimize the storage and efficiency of the program
 - Integrate with Docusign to effectively sign waivers
+- Integrate Mailchip for email communication
+- Ensure responsiveness of pages on mobile view
