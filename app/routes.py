@@ -74,6 +74,9 @@ def login():
         data = db.fetchall()
         conn.commit() # is this line needed? not editing anything in db, just looking
         error = None
+
+        # use werkzeug function to check password hash - NOTE - you cannot just compare using
+        # generate_password_hash since that produces different strings each time
         if not check_password_hash(data[0][3], password):
             error = 'Invalid credentials'
             return render_template('login.html', error=error)
@@ -102,6 +105,7 @@ def register():
         confirm = request.form.get("passwordconfirm")
         
         # TODO - show users that password doesn't match
+        # NOTE - must use this function, cannot string compare - see note in login about this function
         if not check_password_hash(password, confirm):
             return redirect("/register")
         
@@ -508,6 +512,7 @@ def RegisterStaff():
         confirm = request.form.get("passwordconfirm")
 
         # TODO - show users that password doesn't match
+        # NOTE - must use this function, cannot string compare - see note in login about this function
         if not check_password_hash(password, confirm):
             return redirect("/RegisterStaff")
         
