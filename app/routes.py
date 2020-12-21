@@ -8,9 +8,7 @@ from datetime import datetime
 import json
 from mailchimp_marketing import Client
 from werkzeug.security import generate_password_hash, check_password_hash
-
-from app import helpers
-
+from functools import wraps
 # Initializing bootstrap
 bootstrap = Bootstrap(app)
 
@@ -28,8 +26,18 @@ response = mailchimp.ping.get()
 print(response)
 """
 
+# this is the logic behind the login_required decorator
+# https://flask.palletsprojects.com/en/1.1.x/patterns/viewdecorators/
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if session.get("user_id") is None:
+            return redirect(url_for('login', next=request.url))
+        return f(*args, **kwargs)
+    return decorated_function
+
 @app.route('/')
-@helpers.login_required
+@login_required
 def index():
     if not LOGGED_IN:
         return redirect("/login")
