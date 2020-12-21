@@ -59,6 +59,9 @@ def login():
     if LOGGED_IN:
         return redirect("/")
 
+    # forgets and previous user info
+    session.clear()
+
     # setup login page
     if request.method == "GET":
         return render_template("login.html")
@@ -81,6 +84,8 @@ def login():
             error = 'Invalid credentials'
             return render_template('login.html', error=error)
         else:
+            session["user_id"] = data[0][0]
+
             LOGGED_IN = True
             USER_ID = data[0][0]
             USER_TYPE = data[0][1]
@@ -549,6 +554,15 @@ def RegisterStaff():
 @app.route('/forgot_pwd')
 def forgot_pwd():
     return render_template('forgot_pwd.html')
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if session.get("user_id") is None:
+            return redirect(url_for('login', next=request.url))
+        return f(*args, **kwargs)
+    return decorated_function
+
 
 # TODO - replace this unsecure login mechanic
 LOGGED_IN = False
