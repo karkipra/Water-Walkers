@@ -2,7 +2,7 @@ from app import app
 
 from flask import Flask, render_template, request, session, redirect, url_for, flash
 from flask_bootstrap import Bootstrap
-from flask_mail import Message
+from flask_mail import Mail, Message
 #from flask.ext.sqlalchemy import SQLAlchemy
 import sqlite3
 from datetime import datetime 
@@ -12,6 +12,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
 # Initializing bootstrap
 bootstrap = Bootstrap(app)
+
+# Setup flask mail stuff (for forgot_pwd only, not general emails)
+mail = Mail(app)
 
 """
 # Initializing mailchimp
@@ -571,4 +574,19 @@ def forgot_pwd():
         # send recovery email
         # NOTE - IMPORTANT!!! CREATE TESTING EMAIL, DO NOT USE YOUR OWN!!!
         # user email should be protected but we need a dummy "noreply" email
-        return
+        with mail.record_messages() as outbox:
+            # test to see that mail "sent"
+            msg = Message(subject = "Water Walkers Password Recovery",
+                          body = "This is a test.", 
+                          sender = "FIXME", 
+                          recipients = ["FIXME"])
+
+            mail.send(msg)
+
+            assert len(outbox) == 1
+            assert outbox[0].subject == "Water Walkers Password Recovery"
+            assert outbox[0].body == "This is a test."
+
+
+        # TODO - add confirmation that email has been sent
+        return render_template("confirmation.html")
