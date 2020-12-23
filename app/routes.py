@@ -2,6 +2,7 @@ from app import app
 
 from flask import Flask, render_template, request, session, redirect, url_for, flash
 from flask_bootstrap import Bootstrap
+from flask_mail import Message
 #from flask.ext.sqlalchemy import SQLAlchemy
 import sqlite3
 from datetime import datetime 
@@ -568,4 +569,6 @@ def forgot_pwd():
         recovery = request.form.get("recovery")
 
         # send recovery email
+        # NOTE - IMPORTANT!!! CREATE TESTING EMAIL, DO NOT USE YOUR OWN!!!
+        # user email should be protected but we need a dummy "noreply" email
         return
