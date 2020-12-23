@@ -574,6 +574,7 @@ def forgot_pwd():
         # send recovery email
         # NOTE - IMPORTANT!!! CREATE TESTING EMAIL, DO NOT USE YOUR OWN!!!
         # user email should be protected but we need a dummy "noreply" email
+        # TODO - send user link to reset password with index as user_id
         with mail.record_messages() as outbox:
             # test to see that mail "sent"
             msg = Message(subject = "Water Walkers Password Recovery",
@@ -588,5 +589,23 @@ def forgot_pwd():
             assert outbox[0].body == "This is a test."
 
 
-        # TODO - add confirmation that email has been sent
         return render_template("confirmation.html")
+
+@app.route('/reset_password/<index>', methods=['GET', 'POST'])
+def reset_password(index):
+    if request.method == 'GET':
+        return render_template("reset.html", index=index)
+    else:
+        new_password = generate_password_hash(request.form.get("new_password"))
+        confirm_new_password = request.form.get("confirm_new_password")
+
+        # TODO - show user that passwords do not match
+        if not check_password_hash(new_password, confirm_new_password):
+            return redirect(url_for('reset_password', index=index))
+
+        # connect to database
+        conn = sqlite3.connect('database/database.db')
+        db = conn.cursor()
+        
+        return redirect('/login')
+
