@@ -560,6 +560,12 @@ def RegisterStaff():
         
         return redirect("/")
 
-@app.route('/forgot_pwd')
+@app.route('/forgot_pwd', methods=['GET', 'POST'])
 def forgot_pwd():
-    return render_template('forgot_pwd.html')
+    if request.method == 'GET':
+        return render_template('forgot_pwd.html')
+    else:
+        recovery = request.form.get("recovery")
+
+        # send recovery email
+        return
