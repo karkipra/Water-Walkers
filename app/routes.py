@@ -606,6 +606,9 @@ def reset_password(index):
         # connect to database
         conn = sqlite3.connect('database/database.db')
         db = conn.cursor()
-        
+
+        db.execute("UPDATE MAIN SET password=?", (new_password,))
+        conn.commit()
+
         return redirect('/login')
 
