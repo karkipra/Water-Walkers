@@ -7,7 +7,8 @@ import sqlite3
 from datetime import datetime 
 import json
 from mailchimp_marketing import Client
-
+from werkzeug.security import generate_password_hash, check_password_hash
+from functools import wraps
 # Initializing bootstrap
 bootstrap = Bootstrap(app)
 
@@ -25,18 +26,26 @@ response = mailchimp.ping.get()
 print(response)
 """
 
-@app.route('/')
-def index():
-    if not LOGGED_IN:
-        return redirect("/login")
+# this is the logic behind the login_required decorator
+# https://flask.palletsprojects.com/en/1.1.x/patterns/viewdecorators/
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if session.get("user_id") is None:
+            return redirect(url_for('login', next=request.url))
+        return f(*args, **kwargs)
+    return decorated_function
 
-    # SQLite query to add username and password into database
+@app.route('/')
+@login_required
+def index():
+    # fetch basic user info
     conn = sqlite3.connect('database/database.db')
     db = conn.cursor()
-    if USER_TYPE == 1:
-        db.execute("SELECT * FROM STUDENTS where user_id=?", (USER_ID,))
-    elif USER_TYPE == 2:
-        db.execute("SELECT * FROM STAFF where user_id=?", (USER_ID,))
+    if session["user_type"] == 1:
+        db.execute("SELECT * FROM STUDENTS where user_id=?", (session["user_id"],))
+    elif session["user_type"] == 2:
+        db.execute("SELECT * FROM STAFF where user_id=?", (session["user_id"],))
 
     user = db.fetchone()
 
@@ -46,17 +55,12 @@ def index():
     events = db.execute("SELECT * FROM EVENTS")
     conn.commit()
         
-    return render_template('index.html', name=firstname, events=events, user_type=USER_TYPE)
+    return render_template('index.html', name=firstname, events=events, user_type=session["user_type"])
 
-# consider adding login_required aspect (http://flask.pocoo.org/docs/1.0/patterns/viewdecorators/)
 @app.route('/login', methods=["GET", "POST"])
 def login():  
-    global LOGGED_IN
-    global USER_ID
-    global USER_TYPE
-    
-    if LOGGED_IN:
-        return redirect("/")
+    # forgets and previous user info
+    session.clear()
 
     # setup login page
     if request.method == "GET":
@@ -69,24 +73,28 @@ def login():
         db = conn.cursor()
         
         # look for username and password in database
-        db.execute("SELECT * FROM MAIN WHERE username=? AND password=?", (username, password))
+        # TODO - change this error stuff since it doens't seem to work
+        db.execute("SELECT * FROM MAIN WHERE username=?", (username,))
         data = db.fetchall()
         conn.commit() # is this line needed? not editing anything in db, just looking
         error = None
-        if len(data) != 1:
+
+        # use werkzeug function to check password hash - NOTE - you cannot just compare using
+        # generate_password_hash since that produces different strings each time
+        if len(data) != 1 or not check_password_hash(data[0][3], password):
             error = 'Invalid credentials'
             return render_template('login.html', error=error)
         else:
-            LOGGED_IN = True
-            USER_ID = data[0][0]
-            USER_TYPE = data[0][1]
+            session["user_id"] = data[0][0]
+            session["user_type"] = data[0][1]
+         
             return redirect("/")
 
 @app.route('/logout')
 def logout():
-    global LOGGED_IN
-    LOGGED_IN = False
+    session.clear()
     return redirect("/login")
+
     
 @app.route('/register', methods=["GET", "POST"])
 def register():
@@ -97,11 +105,12 @@ def register():
         fname = request.form.get("fname")
         lname = request.form.get("lname")
 
-        password = request.form.get("password")
+        password = generate_password_hash(request.form.get("password"))
         confirm = request.form.get("passwordconfirm")
         
         # TODO - show users that password doesn't match
-        if password != confirm:
+        # NOTE - must use this function, cannot string compare - see note in login about this function
+        if not check_password_hash(password, confirm):
             return redirect("/register")
         
         age = request.form.get("age")
@@ -109,7 +118,7 @@ def register():
         dob = request.form.get("dob")
         email = request.form.get("email")
 
-        # NEW - not added to the html in this order
+        # NOTE this stuff was added later and is not added to the html in this order
         school = request.form.get("school")
         gender = request.form.get("gender")
         ethnicity = request.form.get("ethnicity")
@@ -123,7 +132,7 @@ def register():
         emergency_phone = request.form.get("econtactphone")
         
         allergies = request.form.get("allergies")
-        needs = request.form.get("needs")
+        needs = request.form.get("needs") # TODO - figure out if we need this ;)
         meds = request.form.get("medications")
         notes = request.form.get("notes")
         
@@ -151,19 +160,21 @@ def register():
         return redirect("/")
 
 @app.route('/calendar')
+@login_required
 def calendar():
     return render_template('calendar.html')
 
 # TODO - take photo of user
 @app.route('/profile/<index>')
+@login_required
 def profile(index):
 
     conn = sqlite3.connect('database/database.db')
     db = conn.cursor()
 
     #directs to profile page for the staff
-    if index == '0' and USER_TYPE == 2:
-        index = USER_ID
+    if index == '0' and session["user_type"] == 2:
+        index = session["user_id"]
         db.execute("SELECT * FROM STAFF where user_id=?", (index,))
         staff = db.fetchone()
         return render_template('prof_staff.html', staff=staff)
@@ -171,8 +182,8 @@ def profile(index):
     #show the past events and profile page for students
     else:
         # prevent students from accessing other student profiles
-        if USER_TYPE == 1:
-            index = USER_ID
+        if session["user_type"] == 1:
+            index = session["user_id"]
 
         # get student and events they've attended
         db.execute("SELECT * FROM STUDENTS where user_id=?", (index,))
@@ -213,11 +224,12 @@ def profile(index):
         return render_template('profile.html', student=student, pastEvents=pastEvents, event_info=event_info, events=events, noShow=noShowPercentage, behavior=behavioralPercentage)
 
 @app.route('/edit_student', methods=['GET', 'POST'])
+@login_required
 def edit_student():
     conn = sqlite3.connect('database/database.db')
     db = conn.cursor()
 
-    db.execute("SELECT * FROM STUDENTS where user_id=?", (USER_ID,))
+    db.execute("SELECT * FROM STUDENTS where user_id=?", (session["user_id"],))
     student = db.fetchone()
 
     if request.method =="GET":
@@ -254,11 +266,12 @@ def edit_student():
     return render_template('edit_student.html', student=student)
 
 @app.route('/edit_staff', methods=['GET', 'POST'])
+@login_required
 def edit_staff():
     conn = sqlite3.connect('database/database.db')
     db = conn.cursor()
 
-    db.execute("SELECT * FROM STAFF where user_id=?", (USER_ID,))
+    db.execute("SELECT * FROM STAFF where user_id=?", (session["user_id"],))
     staff = db.fetchone()
 
     if request.method =="GET":
@@ -279,6 +292,7 @@ def edit_staff():
     return render_template('prof_staff.html', staff=staff)
 
 @app.route('/data')
+@login_required
 def return_data():
     conn = sqlite3.connect('database/database.db')
     db = conn.cursor()
@@ -306,6 +320,7 @@ def return_data():
         return input_data.read()
 
 @app.route('/add', methods=["GET", "POST"])
+@login_required
 def add_event():
     if request.method == "GET":
         return render_template("add_event.html")
@@ -332,6 +347,7 @@ def add_event():
 
 # TODO - make this page hidden for students
 @app.route('/delete_event', methods=["GET", "POST"])
+@login_required
 def delete_event():
     if request.method == "POST":
         index = request.form.get('event_id')
@@ -345,6 +361,7 @@ def delete_event():
         return redirect("/")
 
 @app.route('/take_attendance/<index>', methods=['GET', 'POST'])
+@login_required
 def take_attendance(index):
     conn = sqlite3.connect('database/database.db')
     db = conn.cursor()
@@ -445,6 +462,7 @@ def take_attendance(index):
         
 # TODO - this could be modified to add students to a seperate db table rather than attendees
 @app.route('/signup_student', methods=['GET', 'POST'])
+@login_required
 def signup_student():
     if request.method == "POST":
         index = request.form.get('event_id')
@@ -453,17 +471,18 @@ def signup_student():
 
         # insert student and event data into database
         # TODO - replace with INSERT OR IGNORE at some point
-        db.execute("SELECT * FROM ATTENDEES WHERE event_id=? AND student_id=?", (index, USER_ID))
+        db.execute("SELECT * FROM ATTENDEES WHERE event_id=? AND student_id=?", (index, session["user_id"]))
         data = db.fetchall()
 
         # Don't insert if already present
         if len(data) == 0:
-            db.execute("INSERT INTO ATTENDEES (event_id, student_id) VALUES (?,?)", (index, USER_ID,))
+            db.execute("INSERT INTO ATTENDEES (event_id, student_id) VALUES (?,?)", (index, session["user_id"],))
             conn.commit()
 
         return redirect("/")
 
 @app.route('/Event1/<index>')
+@login_required
 def Event1(index):
     conn = sqlite3.connect('database/database.db')
     db = conn.cursor()
@@ -492,7 +511,7 @@ def Event1(index):
         attendees.append((fname[0], lname[0], grade[0]))
 
     # pass in user type in order to only show interested students to staff accounts
-    return render_template('Event1.html', attendees=attendees, event=event, user_type=USER_TYPE)
+    return render_template('Event1.html', attendees=attendees, event=event, user_type=session["user_type"])
 
 @app.route('/RegisterStaff', methods=['GET', 'POST'])
 def RegisterStaff():
@@ -503,11 +522,12 @@ def RegisterStaff():
         fname = request.form.get("fname")
         lname = request.form.get("lname")
         
-        password = request.form.get("password")
+        password = generate_password_hash(request.form.get("password"))
         confirm = request.form.get("passwordconfirm")
 
         # TODO - show users that password doesn't match
-        if password != confirm:
+        # NOTE - must use this function, cannot string compare - see note in login about this function
+        if not check_password_hash(password, confirm):
             return redirect("/RegisterStaff")
         
         emergency = request.form.get("contact")
@@ -543,8 +563,3 @@ def RegisterStaff():
 @app.route('/forgot_pwd')
 def forgot_pwd():
     return render_template('forgot_pwd.html')
-
-# TODO - replace this unsecure login mechanic
-LOGGED_IN = False
-USER_ID = None 
-USER_TYPE = 0 
