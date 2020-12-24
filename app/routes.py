@@ -17,18 +17,23 @@ bootstrap = Bootstrap(app)
 # Setup flask mail stuff (for forgot_pwd only, not general emails)
 mail = Mail(app)
 
+# NOTE - To test mailchimp, turn this to True, fill in api_key and LIST_ID
+TESTING_MAILCHIMP = False
 
-# Initializing mailchimp
-# NOTE - these values depend on the account - don't forget to change them if you move to a different one
-mailchimp = MailchimpMarketing.Client()
-mailchimp.set_config({
-    "api_key": "FIXME",
-    "server" : "us17"
-})
+if TESTING_MAILCHIMP:
+    # Initializing mailchimp
+    # NOTE - these values depend on the account - don't forget to change them if you move to a different one
+    mailchimp = MailchimpMarketing.Client()
+    mailchimp.set_config({
+        "api_key": "FIXME",
+        "server" : "us17"
+    })
 
-# test that mailchimp is working correctly - should print "everything's chimpy!"
-response = mailchimp.ping.get()
-print(response)
+    # test that mailchimp is working correctly - should print "everything's chimpy!"
+    response = mailchimp.ping.get()
+    print(response)
+
+LIST_ID = "FIXME"
 
 # this code is used to CREATE an audience programmatically. Since this only needs to happen once, it's commented out
 """
@@ -59,9 +64,6 @@ try:
 except ApiClientError as error:
   print("An exception occurred: {}".format(error.text))
 """
-
-# NOTE - this is specific to your mailchimp audience
-LIST_ID = "FIXME"
 
 # this is the logic behind the login_required decorator
 # https://flask.palletsprojects.com/en/1.1.x/patterns/viewdecorators/
@@ -193,21 +195,22 @@ def register():
         db.execute("INSERT INTO STUDENTS (user_id, firstname, lastname, age, grade, dob, parent1, parent2, econtact, diet, meds, parent1phone, parent2phone, emergencyphone, gender, school, ethnicity, immunizations, notes) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", student_info)
         conn.commit()
 
-        # add user to mailchimp master audience
-        member_info = {
-            "email_address": email,
-            "status": "subscribed",
-            "merge_fields": {
-            "FNAME": fname,
-            "LNAME": lname
+        if TESTING_MAILCHIMP:
+            # add user to mailchimp master audience
+            member_info = {
+                "email_address": email,
+                "status": "subscribed",
+                "merge_fields": {
+                "FNAME": fname,
+                "LNAME": lname
+                }
             }
-        }
 
-        try:
-            response = mailchimp.lists.add_list_member(LIST_ID, member_info)
-            print("response: {}".format(response))
-        except ApiClientError as error:
-            print("An exception occurred: {}".format(error.text))
+            try:
+                response = mailchimp.lists.add_list_member(LIST_ID, member_info)
+                print("response: {}".format(response))
+            except ApiClientError as error:
+                print("An exception occurred: {}".format(error.text))
         
         return redirect("/")
 
