@@ -7,7 +7,8 @@ from flask_mail import Mail, Message
 import sqlite3
 from datetime import datetime 
 import json
-from mailchimp_marketing import Client
+import mailchimp_marketing as MailchimpMarketing
+from mailchimp_marketing.api_client import ApiClientError
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
 # Initializing bootstrap
@@ -16,10 +17,10 @@ bootstrap = Bootstrap(app)
 # Setup flask mail stuff (for forgot_pwd only, not general emails)
 mail = Mail(app)
 
-"""
+
 # Initializing mailchimp
 # NOTE - these values depend on the account - don't forget to change them if you move to a different one
-mailchimp = Client()
+mailchimp = MailchimpMarketing.Client()
 mailchimp.set_config({
     "api_key": "FIXME",
     "server" : "us17"
@@ -28,7 +29,39 @@ mailchimp.set_config({
 # test that mailchimp is working correctly - should print "everything's chimpy!"
 response = mailchimp.ping.get()
 print(response)
+
+# this code is used to CREATE an audience programmatically. Since this only needs to happen once, it's commented out
 """
+body = {
+  "permission_reminder": "You signed up for updates on our website",
+  "email_type_option": False,
+  "campaign_defaults": {
+    "from_name": "FIXME",
+    "from_email": "test@gmail.com",
+    "subject": "Contact - Water Walkers",
+    "language": "EN_US"
+  },
+  "name": "Water Walkers",
+  "contact": {
+    "company": "FIXME",
+    "address1": "FIXME",
+    "address2": "FIXME",
+    "city": "Nashville",
+    "state": "TN",
+    "zip": "FIXME",
+    "country": "US"
+  }
+}
+
+try:
+  response = mailchimp.lists.create_list(body)
+  print("Response: {}".format(response))
+except ApiClientError as error:
+  print("An exception occurred: {}".format(error.text))
+"""
+
+# NOTE - this is specific to your mailchimp audience
+LIST_ID = "FIXME"
 
 # this is the logic behind the login_required decorator
 # https://flask.palletsprojects.com/en/1.1.x/patterns/viewdecorators/
@@ -77,7 +110,6 @@ def login():
         db = conn.cursor()
         
         # look for username and password in database
-        # TODO - change this error stuff since it doens't seem to work
         db.execute("SELECT * FROM MAIN WHERE username=?", (username,))
         data = db.fetchall()
         conn.commit() # is this line needed? not editing anything in db, just looking
@@ -160,6 +192,22 @@ def register():
         student_info = (str(user_id), fname, lname, age, grade, dob, parent1, parent2, emergency, allergies, meds, parent1phone, parent2phone, emergency_phone, gender, school, ethnicity, immunizations, notes)
         db.execute("INSERT INTO STUDENTS (user_id, firstname, lastname, age, grade, dob, parent1, parent2, econtact, diet, meds, parent1phone, parent2phone, emergencyphone, gender, school, ethnicity, immunizations, notes) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", student_info)
         conn.commit()
+
+        # add user to mailchimp master audience
+        member_info = {
+            "email_address": email,
+            "status": "subscribed",
+            "merge_fields": {
+            "FNAME": fname,
+            "LNAME": lname
+            }
+        }
+
+        try:
+            response = mailchimp.lists.add_list_member(LIST_ID, member_info)
+            print("response: {}".format(response))
+        except ApiClientError as error:
+            print("An exception occurred: {}".format(error.text))
         
         return redirect("/")
 
