@@ -1,0 +1,20 @@
+{% extends "base.html" %} {% block head %}
+<title>Password Recovery</title>
+<link rel="stylesheet" href="static/styles/register.css">
+{% endblock %}
+
+{% block app_content %}
+<div class="col-md-5 main-section">
+    <div class="modal-content">
+        <div>
+            <b>A recovery email has been sent to the indicated account. If it hasn't shown up in the next few minutes, try again.</b>
+        </div>
+        <div class="border-top pt-3">
+            <small class="text-muted">
+                <a class="ml-2" href="{{ url_for('login') }}">Login</a>
+            </small>
+        </div>
+        <br>
+    </div>
+</div>
+{% endblock %}

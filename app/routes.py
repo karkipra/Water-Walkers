@@ -2,6 +2,7 @@ from app import app
 
 from flask import Flask, render_template, request, session, redirect, url_for, flash
 from flask_bootstrap import Bootstrap
+from flask_mail import Mail, Message
 #from flask.ext.sqlalchemy import SQLAlchemy
 import sqlite3
 from datetime import datetime 
@@ -11,6 +12,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
 # Initializing bootstrap
 bootstrap = Bootstrap(app)
+
+# Setup flask mail stuff (for forgot_pwd only, not general emails)
+mail = Mail(app)
 
 """
 # Initializing mailchimp
@@ -560,6 +564,51 @@ def RegisterStaff():
         
         return redirect("/")
 
-@app.route('/forgot_pwd')
+@app.route('/forgot_pwd', methods=['GET', 'POST'])
 def forgot_pwd():
-    return render_template('forgot_pwd.html')
+    if request.method == 'GET':
+        return render_template('forgot_pwd.html')
+    else:
+        recovery = request.form.get("recovery")
+
+        # send recovery email
+        # NOTE - IMPORTANT!!! CREATE TESTING EMAIL, DO NOT USE YOUR OWN!!!
+        # user email should be protected but we need a dummy "noreply" email
+        # TODO - send user link to reset password with index as user_id
+        with mail.record_messages() as outbox:
+            # test to see that mail "sent"
+            msg = Message(subject = "Water Walkers Password Recovery",
+                          body = "This is a test.", 
+                          sender = "FIXME", 
+                          recipients = ["FIXME"])
+
+            mail.send(msg)
+
+            assert len(outbox) == 1
+            assert outbox[0].subject == "Water Walkers Password Recovery"
+            assert outbox[0].body == "This is a test."
+
+
+        return render_template("confirmation.html")
+
+@app.route('/reset_password/<index>', methods=['GET', 'POST'])
+def reset_password(index):
+    if request.method == 'GET':
+        return render_template("reset.html", index=index)
+    else:
+        new_password = generate_password_hash(request.form.get("new_password"))
+        confirm_new_password = request.form.get("confirm_new_password")
+
+        # TODO - show user that passwords do not match
+        if not check_password_hash(new_password, confirm_new_password):
+            return redirect(url_for('reset_password', index=index))
+
+        # connect to database
+        conn = sqlite3.connect('database/database.db')
+        db = conn.cursor()
+
+        db.execute("UPDATE MAIN SET password=?", (new_password,))
+        conn.commit()
+
+        return redirect('/login')
+
