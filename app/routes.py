@@ -18,14 +18,14 @@ bootstrap = Bootstrap(app)
 mail = Mail(app)
 
 # NOTE - To test mailchimp, turn this to True, fill in api_key and LIST_ID
-TESTING_MAILCHIMP = True
+TESTING_MAILCHIMP = False
 
 if TESTING_MAILCHIMP:
     # Initializing mailchimp
     # NOTE - these values depend on the account - don't forget to change them if you move to a different one
     mailchimp = MailchimpMarketing.Client()
     mailchimp.set_config({
-        "api_key": "c6c1b04c2ad4557051270c1110935ef2-us17",
+        "api_key": "FIXME",
         "server" : "us17"
     })
 
@@ -33,7 +33,7 @@ if TESTING_MAILCHIMP:
     response = mailchimp.ping.get()
     print(response)
 
-LIST_ID = "07ec6312d7"
+LIST_ID = "FIXME"
 
 # this code is used to CREATE an audience programmatically. Since this only needs to happen once, it's commented out
 """
@@ -684,14 +684,27 @@ def mass_email():
                     "subject_line": subject,
                     "preview_text": body,
                     "title": campaign_name,
+                    "from_name": "Water Walkers Staff",
                     "reply_to": "test@gmail.com"
                 }
+            }
+
+            content = {
+                "plaintext": body
             }
 
             try:
                 # create campaign
                 response = mailchimp.campaigns.create(campaign)
-                print(response)
+                campaign_id = response["id"]
+                print(campaign_id)
+
+                # set campaign content and send mass email
+                mailchimp.campaigns.set_content(campaign_id, content)
+                send_receipt = mailchimp.campaigns.send(campaign_id)
+
+                # should print 204 HTML code
+                print(send_receipt)
             except ApiClientError as error:
                 print("An exception occurred: {}".format(error.text))
 
