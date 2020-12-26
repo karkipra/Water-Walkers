@@ -18,14 +18,14 @@ bootstrap = Bootstrap(app)
 mail = Mail(app)
 
 # NOTE - To test mailchimp, turn this to True, fill in api_key and LIST_ID
-TESTING_MAILCHIMP = False
+TESTING_MAILCHIMP = True
 
 if TESTING_MAILCHIMP:
     # Initializing mailchimp
     # NOTE - these values depend on the account - don't forget to change them if you move to a different one
     mailchimp = MailchimpMarketing.Client()
     mailchimp.set_config({
-        "api_key": "FIXME",
+        "api_key": "c6c1b04c2ad4557051270c1110935ef2-us17",
         "server" : "us17"
     })
 
@@ -33,7 +33,7 @@ if TESTING_MAILCHIMP:
     response = mailchimp.ping.get()
     print(response)
 
-LIST_ID = "FIXME"
+LIST_ID = "07ec6312d7"
 
 # this code is used to CREATE an audience programmatically. Since this only needs to happen once, it's commented out
 """
@@ -668,5 +668,32 @@ def mass_email():
     if request.method == 'GET':
         return render_template("email.html")
     else:
+        campaign_name = request.form.get("campaign_name")
+        subject = request.form.get("subject")
+        body = request.form.get("body")
+
+        # send email to students
+        # TODO - remember to setup proper reply to email before deployment
+        if TESTING_MAILCHIMP:
+            campaign = {
+                "type": "plaintext",
+                "recipients": {
+                    "list_id": LIST_ID
+                },
+                "settings": {
+                    "subject_line": subject,
+                    "preview_text": body,
+                    "title": campaign_name,
+                    "reply_to": "test@gmail.com"
+                }
+            }
+
+            try:
+                # create campaign
+                response = mailchimp.campaigns.create(campaign)
+                print(response)
+            except ApiClientError as error:
+                print("An exception occurred: {}".format(error.text))
+
         return redirect("/")
 
