@@ -22,22 +22,22 @@
           <ul class="navbar-nav mr-auto">
             <li class="nav-item active">
               <a class="nav-link" href="{{ url_for('index') }}">Home <span class="sr-only">(current)</span></a>
-              </li>
-            <!--{% if user_type == 2%}
+            </li>
             <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('add_event') }}">Add Event</a>
-              </li>
-            {% endif %}-->
-            <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('calendar') }}">View Events</a>
-              </li>
+              <a class="nav-link" href="{{ url_for('calendar') }}">View Events</a>
+            </li>
             {% if user_type == 1 or user_type == 2 %}
             <li class="nav-item">
               <a class="nav-link" href="{{ url_for('profile', index = 0) }}">Profile</a>
             </li>
+            {% if user_type == 2 %}
+            <li>
+              <a class = "nav-link" href="{{ url_for('mass_email') }}">Email Students</a>
+            </li>
+            {% endif %}
             <li class="nav-item">
-                  <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
-              </li>
+              <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+            </li>
             {% endif %}
           </ul>
         </div>

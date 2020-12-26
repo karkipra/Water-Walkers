@@ -663,3 +663,10 @@ def reset_password(index):
 
         return redirect('/login')
 
+@app.route('/mass_email', methods=['GET', 'POST'])
+def mass_email():
+    if request.method == 'GET':
+        return render_template("email.html")
+    else:
+        return redirect("/")
+
