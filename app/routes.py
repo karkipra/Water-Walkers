@@ -335,8 +335,74 @@ def edit_student():
     db.execute("UPDATE STUDENTS SET firstname = ?, lastname = ?, age = ?, grade = ?, dob = ?, parent1 = ?, parent2 = ?, econtact = ?, diet = ?, meds = ?, parent1phone = ?, parent2phone = ?, emergencyphone = ?, gender = ?, school = ?, ethnicity = ?, immunizations = ?, notes = ? WHERE user_id = ?", (student_info))
     conn.commit()
 
-    #get the new value for student before passing it
-    db.execute("SELECT * FROM STUDENTS where user_id=?", (student[0],))
+    # UPDATE EMAIL TAGS
+    # get current tags
+    if TESTING_MAILCHIMP:
+        db.execute("SELECT username FROM MAIN WHERE user_id=?", (session["user_id"],))
+        email = db.fetchone()[0]
+
+        SUBSCRIBER_HASH = hashlib.md5(email.encode('utf-8')).hexdigest()
+        active_tags = {}
+
+        try:
+            response = mailchimp.lists.get_list_member_tags(LIST_ID, SUBSCRIBER_HASH)
+            print("client.ping.get() response: {}".format(response))
+            
+            # fill active_tags with info from response(json)
+            for tag in response["tags"]:
+                active_tags.setdefault(tag["name"])
+
+        except ApiClientError as error:
+            print("An exception occurred: {}".format(error.text))
+
+        # add tags
+        tags_to_add = []
+
+        # manual check of all tags that exist, add the names of those that do to tags_to_add
+        if request.form.get("adventure"):
+            tags_to_add.append("adventure")
+        if request.form.get("tutoring"):
+            tags_to_add.append("tutoring")
+
+        # tag users if they don't already have given tag
+        for tag in tags_to_add:
+            if tag not in active_tags:
+                try:
+                    response = mailchimp.lists.update_list_member_tags(LIST_ID, SUBSCRIBER_HASH, body={
+                        "tags": [{
+                            "name": tag,
+                            "status": "active"
+                        }]
+                    })
+                    print("client.lists.update_list_member_tags() response: {}".format(response))
+                except ApiClientError as error:
+                    print("An exception occurred: {}".format(error.text))
+        
+        # remove tags
+        tags_to_remove = []
+        
+        # same procedure as above
+        if request.form.get("adventure_stop"):
+            tags_to_remove.append("adventure")
+        if request.form.get("tutoring_stop"):
+            tags_to_remove.append("tutoring")
+
+        # remove tag is user has given tag
+        for tag in tags_to_remove:
+            if tag in active_tags:
+                try:
+                    response = mailchimp.lists.update_list_member_tags(LIST_ID, SUBSCRIBER_HASH, body={
+                        "tags": [{
+                            "name": tag,
+                            "status": "inactive"
+                        }]
+                    })
+                    print("client.lists.update_list_member_tags() response: {}".format(response))
+                except ApiClientError as error:
+                    print("An exception occurred: {}".format(error.text))
+
+    # get the new value for student before passing it
+    db.execute("SELECT * FROM STUDENTS where user_id=?", (session["user_id"],))
     student = db.fetchone()
     return render_template('edit_student.html', student=student)
 
