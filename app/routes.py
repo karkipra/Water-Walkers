@@ -10,6 +10,7 @@ import json
 import mailchimp_marketing as MailchimpMarketing
 from mailchimp_marketing.api_client import ApiClientError
 from werkzeug.security import generate_password_hash, check_password_hash
+import hashlib
 from functools import wraps
 # Initializing bootstrap
 bootstrap = Bootstrap(app)
@@ -211,7 +212,26 @@ def register():
                 print("response: {}".format(response))
             except ApiClientError as error:
                 print("An exception occurred: {}".format(error.text))
-        
+
+            # tag user if indicated
+            tags = [["adventure", request.form.get("adventure")],["tutoring", request.form.get("tutoring")]]
+
+            # check responses to each tag and add them if checked off on registration form
+            for tag in tags:
+                if tag[1]:
+                    # boilerplate from https://mailchimp.com/developer/guides/organize-contacts-with-tags/
+                    SUBSCRIBER_HASH = hashlib.md5(email.encode('utf-8')).hexdigest()
+                    try:
+                        response = mailchimp.lists.update_list_member_tags(LIST_ID, SUBSCRIBER_HASH, body={
+                            "tags": [{
+                                "name": tag[0],
+                                "status": "active"
+                            }]
+                        })
+                        print("client.lists.update_list_member_tags() response: {}".format(response))
+                    except ApiClientError as error:
+                        print("An exception occurred: {}".format(error.text))
+
         return redirect("/")
 
 @app.route('/calendar')
