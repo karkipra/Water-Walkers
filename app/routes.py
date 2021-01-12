@@ -34,7 +34,12 @@ if TESTING_MAILCHIMP:
     response = mailchimp.ping.get()
     print(response)
 
+# we need to make list_id and tag id global - TODO - figure out way of automating getting tag_id for new accounts
 LIST_ID = "FIXME"
+TAG_IDS = {
+    "adventure": 3866268,
+    "tutoring": 3866272
+}
 
 # this code is used to CREATE an audience programmatically. Since this only needs to happen once, it's commented out
 """
@@ -760,26 +765,15 @@ def mass_email():
         tag_name = None
         tag_number = -1
 
-        #  get response from tags in form
+        # get response from tags in form
         try:
             tag_name = request.form["tags"]
         except:
             print("Error with radio buttons occured")
 
         # determine tag id
-        # TODO - figure out how to get tag_id without subscriber email
         if tag_name:
-            SUBSCRIBER_HASH = hashlib.md5(EMAIL.encode('utf-8')).hexdigest()
-            try:
-                response = mailchimp.lists.get_list_member_tags(LIST_ID, SUBSCRIBER_HASH)
-                print("client.ping.get() response: {}".format(response))
-
-                for tag in response["tags"]:
-                    if tag["name"] == tag_name:
-                        tag_number = tag["id"]
-
-            except ApiClientError as error:
-                print("An exception occurred: {}".format(error.text))
+            tag_number = TAG_IDS[tag_name]
 
         # send email to students
         # TODO - remember to setup proper reply to email before deployment
@@ -803,23 +797,15 @@ def mass_email():
                 "plaintext": body
             }
 
-            # FIXME
+            # add tag settings to campaign object if specified as per API documentation
             if tag_name:
-                recipients = {
-                    "segment_opts": {
-                        "saved_segment_id": tag_number
-                    },
-                    "list_id": LIST_ID
-                }
-                print(recipients)
-
+                campaign["recipients"].setdefault("segment_opts")
+                campaign["recipients"]["segment_opts"] = {"saved_segment_id": tag_number}
             try:
                 # create campaign
                 response = mailchimp.campaigns.create(campaign)
                 campaign_id = response["id"]
                 print(campaign_id)
-
-                # TODO - append to dict or use update function to add tags if specified
 
                 # set campaign content and send mass email
                 mailchimp.campaigns.set_content(campaign_id, content)
