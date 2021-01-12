@@ -7,8 +7,10 @@ from flask_mail import Mail, Message
 import sqlite3
 from datetime import datetime 
 import json
-from mailchimp_marketing import Client
+import mailchimp_marketing as MailchimpMarketing
+from mailchimp_marketing.api_client import ApiClientError
 from werkzeug.security import generate_password_hash, check_password_hash
+import hashlib
 from functools import wraps
 # Initializing bootstrap
 bootstrap = Bootstrap(app)
@@ -16,18 +18,57 @@ bootstrap = Bootstrap(app)
 # Setup flask mail stuff (for forgot_pwd only, not general emails)
 mail = Mail(app)
 
-"""
-# Initializing mailchimp
-# NOTE - these values depend on the account - don't forget to change them if you move to a different one
-mailchimp = Client()
-mailchimp.set_config({
-    "api_key": "FIXME",
-    "server" : "us17"
-})
+# NOTE - To test mailchimp, turn this to True, fill in api_key and LIST_ID
+TESTING_MAILCHIMP = False
 
-# test that mailchimp is working correctly - should print "everything's chimpy!"
-response = mailchimp.ping.get()
-print(response)
+if TESTING_MAILCHIMP:
+    # Initializing mailchimp
+    # NOTE - these values depend on the account - don't forget to change them if you move to a different one
+    mailchimp = MailchimpMarketing.Client()
+    mailchimp.set_config({
+        "api_key": "FIXME",
+        "server" : "us17"
+    })
+
+    # test that mailchimp is working correctly - should print "everything's chimpy!"
+    response = mailchimp.ping.get()
+    print(response)
+
+# we need to make list_id and tag id global - TODO - figure out way of automating getting tag_id for new accounts
+LIST_ID = "FIXME"
+TAG_IDS = {
+    "adventure": 3866268,
+    "tutoring": 3866272
+}
+
+# this code is used to CREATE an audience programmatically. Since this only needs to happen once, it's commented out
+"""
+body = {
+  "permission_reminder": "You signed up for updates on our website",
+  "email_type_option": False,
+  "campaign_defaults": {
+    "from_name": "FIXME",
+    "from_email": "test@gmail.com",
+    "subject": "Contact - Water Walkers",
+    "language": "EN_US"
+  },
+  "name": "Water Walkers",
+  "contact": {
+    "company": "FIXME",
+    "address1": "FIXME",
+    "address2": "FIXME",
+    "city": "Nashville",
+    "state": "TN",
+    "zip": "FIXME",
+    "country": "US"
+  }
+}
+
+try:
+  response = mailchimp.lists.create_list(body)
+  print("Response: {}".format(response))
+except ApiClientError as error:
+  print("An exception occurred: {}".format(error.text))
 """
 
 # this is the logic behind the login_required decorator
@@ -77,7 +118,6 @@ def login():
         db = conn.cursor()
         
         # look for username and password in database
-        # TODO - change this error stuff since it doens't seem to work
         db.execute("SELECT * FROM MAIN WHERE username=?", (username,))
         data = db.fetchall()
         conn.commit() # is this line needed? not editing anything in db, just looking
@@ -160,7 +200,43 @@ def register():
         student_info = (str(user_id), fname, lname, age, grade, dob, parent1, parent2, emergency, allergies, meds, parent1phone, parent2phone, emergency_phone, gender, school, ethnicity, immunizations, notes)
         db.execute("INSERT INTO STUDENTS (user_id, firstname, lastname, age, grade, dob, parent1, parent2, econtact, diet, meds, parent1phone, parent2phone, emergencyphone, gender, school, ethnicity, immunizations, notes) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", student_info)
         conn.commit()
-        
+
+        if TESTING_MAILCHIMP:
+            # add user to mailchimp master audience
+            member_info = {
+                "email_address": email,
+                "status": "subscribed",
+                "merge_fields": {
+                "FNAME": fname,
+                "LNAME": lname
+                }
+            }
+
+            try:
+                response = mailchimp.lists.add_list_member(LIST_ID, member_info)
+                print("response: {}".format(response))
+            except ApiClientError as error:
+                print("An exception occurred: {}".format(error.text))
+
+            # tag user if indicated
+            tags = [["adventure", request.form.get("adventure")],["tutoring", request.form.get("tutoring")]]
+
+            # check responses to each tag and add them if checked off on registration form
+            for tag in tags:
+                if tag[1]:
+                    # boilerplate from https://mailchimp.com/developer/guides/organize-contacts-with-tags/
+                    SUBSCRIBER_HASH = hashlib.md5(email.encode('utf-8')).hexdigest()
+                    try:
+                        response = mailchimp.lists.update_list_member_tags(LIST_ID, SUBSCRIBER_HASH, body={
+                            "tags": [{
+                                "name": tag[0],
+                                "status": "active"
+                            }]
+                        })
+                        print("client.lists.update_list_member_tags() response: {}".format(response))
+                    except ApiClientError as error:
+                        print("An exception occurred: {}".format(error.text))
+
         return redirect("/")
 
 @app.route('/calendar')
@@ -264,8 +340,74 @@ def edit_student():
     db.execute("UPDATE STUDENTS SET firstname = ?, lastname = ?, age = ?, grade = ?, dob = ?, parent1 = ?, parent2 = ?, econtact = ?, diet = ?, meds = ?, parent1phone = ?, parent2phone = ?, emergencyphone = ?, gender = ?, school = ?, ethnicity = ?, immunizations = ?, notes = ? WHERE user_id = ?", (student_info))
     conn.commit()
 
-    #get the new value for student before passing it
-    db.execute("SELECT * FROM STUDENTS where user_id=?", (student[0],))
+    # UPDATE EMAIL TAGS
+    # get current tags
+    if TESTING_MAILCHIMP:
+        db.execute("SELECT username FROM MAIN WHERE user_id=?", (session["user_id"],))
+        email = db.fetchone()[0]
+
+        SUBSCRIBER_HASH = hashlib.md5(email.encode('utf-8')).hexdigest()
+        active_tags = {}
+
+        try:
+            response = mailchimp.lists.get_list_member_tags(LIST_ID, SUBSCRIBER_HASH)
+            print("client.ping.get() response: {}".format(response))
+            
+            # fill active_tags with info from response(json)
+            for tag in response["tags"]:
+                active_tags.setdefault(tag["name"])
+
+        except ApiClientError as error:
+            print("An exception occurred: {}".format(error.text))
+
+        # add tags
+        tags_to_add = []
+
+        # manual check of all tags that exist, add the names of those that do to tags_to_add
+        if request.form.get("adventure"):
+            tags_to_add.append("adventure")
+        if request.form.get("tutoring"):
+            tags_to_add.append("tutoring")
+
+        # tag users if they don't already have given tag
+        for tag in tags_to_add:
+            if tag not in active_tags:
+                try:
+                    response = mailchimp.lists.update_list_member_tags(LIST_ID, SUBSCRIBER_HASH, body={
+                        "tags": [{
+                            "name": tag,
+                            "status": "active"
+                        }]
+                    })
+                    print("client.lists.update_list_member_tags() response: {}".format(response))
+                except ApiClientError as error:
+                    print("An exception occurred: {}".format(error.text))
+        
+        # remove tags
+        tags_to_remove = []
+        
+        # same procedure as above
+        if request.form.get("adventure_stop"):
+            tags_to_remove.append("adventure")
+        if request.form.get("tutoring_stop"):
+            tags_to_remove.append("tutoring")
+
+        # remove tag is user has given tag
+        for tag in tags_to_remove:
+            if tag in active_tags:
+                try:
+                    response = mailchimp.lists.update_list_member_tags(LIST_ID, SUBSCRIBER_HASH, body={
+                        "tags": [{
+                            "name": tag,
+                            "status": "inactive"
+                        }]
+                    })
+                    print("client.lists.update_list_member_tags() response: {}".format(response))
+                except ApiClientError as error:
+                    print("An exception occurred: {}".format(error.text))
+
+    # get the new value for student before passing it
+    db.execute("SELECT * FROM STUDENTS where user_id=?", (session["user_id"],))
     student = db.fetchone()
     return render_template('edit_student.html', student=student)
 
@@ -611,4 +753,68 @@ def reset_password(index):
         conn.commit()
 
         return redirect('/login')
+
+@app.route('/mass_email', methods=['GET', 'POST'])
+def mass_email():
+    if request.method == 'GET':
+        return render_template("email.html")
+    else:
+        campaign_name = request.form.get("campaign_name")
+        subject = request.form.get("subject")
+        body = request.form.get("body")
+        tag_name = None
+        tag_number = -1
+
+        # get response from tags in form
+        try:
+            tag_name = request.form["tags"]
+        except:
+            print("Error with radio buttons occured")
+
+        # determine tag id
+        if tag_name:
+            tag_number = TAG_IDS[tag_name]
+
+        # send email to students
+        # TODO - remember to setup proper reply to email before deployment
+        if TESTING_MAILCHIMP:
+            # basic campaign info https://mailchimp.com/developer/api/marketing/campaigns/add-campaign/
+            campaign = {
+                "type": "plaintext",
+                "recipients": {
+                    "list_id": LIST_ID
+                },
+                "settings": {
+                    "subject_line": subject,
+                    "preview_text": body,
+                    "title": campaign_name,
+                    "from_name": "Water Walkers Staff",
+                    "reply_to": "test@gmail.com"
+                }
+            }
+
+            content = {
+                "plaintext": body
+            }
+
+            # add tag settings to campaign object if specified as per API documentation
+            if tag_name:
+                campaign["recipients"].setdefault("segment_opts")
+                campaign["recipients"]["segment_opts"] = {"saved_segment_id": tag_number}
+            try:
+                # create campaign
+                response = mailchimp.campaigns.create(campaign)
+                campaign_id = response["id"]
+                print(campaign_id)
+
+                # set campaign content and send mass email
+                mailchimp.campaigns.set_content(campaign_id, content)
+                send_receipt = mailchimp.campaigns.send(campaign_id)
+
+                # should print 204 HTML code
+                print(send_receipt)
+            except ApiClientError as error:
+                print("An exception occurred: {}".format(error.text))
+
+        return redirect("/")
 
