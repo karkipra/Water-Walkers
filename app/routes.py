@@ -757,10 +757,34 @@ def mass_email():
         campaign_name = request.form.get("campaign_name")
         subject = request.form.get("subject")
         body = request.form.get("body")
+        tag_name = None
+        tag_number = -1
+
+        #  get response from tags in form
+        try:
+            tag_name = request.form["tags"]
+        except:
+            print("Error with radio buttons occured")
+
+        # determine tag id
+        # TODO - figure out how to get tag_id without subscriber email
+        if tag_name:
+            SUBSCRIBER_HASH = hashlib.md5(EMAIL.encode('utf-8')).hexdigest()
+            try:
+                response = mailchimp.lists.get_list_member_tags(LIST_ID, SUBSCRIBER_HASH)
+                print("client.ping.get() response: {}".format(response))
+
+                for tag in response["tags"]:
+                    if tag["name"] == tag_name:
+                        tag_number = tag["id"]
+
+            except ApiClientError as error:
+                print("An exception occurred: {}".format(error.text))
 
         # send email to students
         # TODO - remember to setup proper reply to email before deployment
         if TESTING_MAILCHIMP:
+            # basic campaign info https://mailchimp.com/developer/api/marketing/campaigns/add-campaign/
             campaign = {
                 "type": "plaintext",
                 "recipients": {
@@ -779,11 +803,23 @@ def mass_email():
                 "plaintext": body
             }
 
+            # FIXME
+            if tag_name:
+                recipients = {
+                    "segment_opts": {
+                        "saved_segment_id": tag_number
+                    },
+                    "list_id": LIST_ID
+                }
+                print(recipients)
+
             try:
                 # create campaign
                 response = mailchimp.campaigns.create(campaign)
                 campaign_id = response["id"]
                 print(campaign_id)
+
+                # TODO - append to dict or use update function to add tags if specified
 
                 # set campaign content and send mass email
                 mailchimp.campaigns.set_content(campaign_id, content)
